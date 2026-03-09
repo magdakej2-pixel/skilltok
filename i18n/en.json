@@ -1,0 +1,148 @@
+{
+  "common": {
+    "appName": "SkillTok",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "done": "Done",
+    "next": "Next",
+    "back": "Back",
+    "search": "Search",
+    "noResults": "No results found",
+    "seeAll": "See all",
+    "confirm": "Confirm",
+    "ok": "OK"
+  },
+  "auth": {
+    "welcome": "Learn Future Skills",
+    "subtitle": "Watch short videos from experts in AI, Business, Design and more",
+    "login": "Log In",
+    "signup": "Sign Up",
+    "signupTitle": "Create Account",
+    "loginTitle": "Welcome Back",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "displayName": "Display Name",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "orContinueWith": "or continue with",
+    "google": "Continue with Google",
+    "emailRequired": "Email is required",
+    "passwordRequired": "Password is required",
+    "passwordMinLength": "Password must be at least 6 characters",
+    "passwordMismatch": "Passwords do not match",
+    "nameRequired": "Display name is required",
+    "loginFailed": "Login failed. Check your credentials.",
+    "signupFailed": "Sign up failed. Try again.",
+    "logout": "Log Out",
+    "logoutConfirm": "Are you sure you want to log out?"
+  },
+  "role": {
+    "title": "How will you use SkillTok?",
+    "subtitle": "You can always change this later",
+    "student": "Student",
+    "studentDesc": "Watch and learn from expert videos",
+    "teacher": "Teacher",
+    "teacherDesc": "Share your expertise with short videos",
+    "continue": "Continue"
+  },
+  "language": {
+    "title": "Choose Your Language",
+    "subtitle": "Select your preferred language"
+  },
+  "feed": {
+    "title": "For You",
+    "following": "Following",
+    "noVideos": "No videos yet",
+    "pullToRefresh": "Pull to refresh"
+  },
+  "video": {
+    "like": "Like",
+    "comment": "Comment",
+    "share": "Share",
+    "save": "Save",
+    "follow": "Follow",
+    "following": "Following",
+    "views": "views",
+    "comments": "Comments",
+    "addComment": "Add a comment...",
+    "post": "Post",
+    "reply": "Reply",
+    "noComments": "No comments yet. Be the first!",
+    "share_message": "Check out this lesson on SkillTok!"
+  },
+  "upload": {
+    "title": "Upload Video",
+    "selectVideo": "Select Video",
+    "recordVideo": "Record Video",
+    "videoTitle": "Title",
+    "titlePlaceholder": "Give your lesson a title",
+    "description": "Description",
+    "descPlaceholder": "What will viewers learn?",
+    "tags": "Tags",
+    "tagsPlaceholder": "Add tags (comma separated)",
+    "category": "Category",
+    "selectCategory": "Select a category",
+    "coverImage": "Cover Image",
+    "uploading": "Uploading...",
+    "uploadSuccess": "Video uploaded successfully!",
+    "uploadFailed": "Upload failed. Try again.",
+    "maxSize": "Maximum file size: 50MB",
+    "publish": "Publish",
+    "videoSelected": "Video selected",
+    "fillRequired": "Please fill in title and select a category"
+  },
+  "profile": {
+    "followers": "Followers",
+    "following": "Following",
+    "videos": "Videos",
+    "saved": "Saved",
+    "editProfile": "Edit Profile",
+    "bio": "Bio",
+    "expertise": "Expertise",
+    "noVideos": "No videos yet",
+    "noSaved": "No saved videos",
+    "settings": "Settings"
+  },
+  "explore": {
+    "title": "Explore",
+    "categories": "Categories",
+    "trending": "Trending",
+    "searchPlaceholder": "Search videos, teachers, topics..."
+  },
+  "search": {
+    "results": "results",
+    "resultsSingular": "result"
+  },
+  "settings": {
+    "language": "Language",
+    "darkMode": "Dark Mode",
+    "about": "About",
+    "version": "Version"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "totalViews": "Total Views",
+    "totalLikes": "Total Likes",
+    "totalComments": "Total Comments",
+    "totalSaves": "Total Saves",
+    "performance": "Performance"
+  },
+  "categories": {
+    "ai": "AI",
+    "programming": "Programming",
+    "marketing": "Marketing",
+    "business": "Business",
+    "finance": "Finance",
+    "productivity": "Productivity",
+    "design": "Design",
+    "entrepreneurship": "Entrepreneurship",
+    "content-creator": "Content Creator"
+  }
+}

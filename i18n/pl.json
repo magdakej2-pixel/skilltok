@@ -1,0 +1,148 @@
+{
+  "common": {
+    "appName": "SkillTok",
+    "loading": "Ładowanie...",
+    "error": "Coś poszło nie tak",
+    "retry": "Spróbuj ponownie",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "done": "Gotowe",
+    "next": "Dalej",
+    "back": "Wstecz",
+    "search": "Szukaj",
+    "noResults": "Brak wyników",
+    "seeAll": "Zobacz wszystko",
+    "confirm": "Potwierdź",
+    "ok": "OK"
+  },
+  "auth": {
+    "welcome": "Ucz się umiejętności przyszłości",
+    "subtitle": "Oglądaj krótkie filmy od ekspertów z AI, Biznesu, Designu i więcej",
+    "login": "Zaloguj się",
+    "signup": "Zarejestruj się",
+    "signupTitle": "Utwórz konto",
+    "loginTitle": "Witaj ponownie",
+    "email": "Email",
+    "password": "Hasło",
+    "confirmPassword": "Potwierdź hasło",
+    "displayName": "Nazwa wyświetlana",
+    "forgotPassword": "Zapomniałeś hasła?",
+    "noAccount": "Nie masz konta?",
+    "hasAccount": "Masz już konto?",
+    "orContinueWith": "lub kontynuuj z",
+    "google": "Kontynuuj z Google",
+    "emailRequired": "Email jest wymagany",
+    "passwordRequired": "Hasło jest wymagane",
+    "passwordMinLength": "Hasło musi mieć min. 6 znaków",
+    "passwordMismatch": "Hasła nie są identyczne",
+    "nameRequired": "Nazwa jest wymagana",
+    "loginFailed": "Logowanie nie powiodło się",
+    "signupFailed": "Rejestracja nie powiodła się",
+    "logout": "Wyloguj się",
+    "logoutConfirm": "Czy na pewno chcesz się wylogować?"
+  },
+  "role": {
+    "title": "Jak będziesz używać SkillTok?",
+    "subtitle": "Zawsze możesz to zmienić później",
+    "student": "Student",
+    "studentDesc": "Oglądaj i ucz się z filmów ekspertów",
+    "teacher": "Nauczyciel",
+    "teacherDesc": "Dziel się wiedzą w krótkich filmach",
+    "continue": "Kontynuuj"
+  },
+  "language": {
+    "title": "Wybierz język",
+    "subtitle": "Wybierz preferowany język"
+  },
+  "feed": {
+    "title": "Dla Ciebie",
+    "following": "Obserwowani",
+    "noVideos": "Brak filmów",
+    "pullToRefresh": "Pociągnij aby odświeżyć"
+  },
+  "video": {
+    "like": "Lubię",
+    "comment": "Komentarz",
+    "share": "Udostępnij",
+    "save": "Zapisz",
+    "follow": "Obserwuj",
+    "following": "Obserwujesz",
+    "views": "wyświetleń",
+    "comments": "Komentarze",
+    "addComment": "Dodaj komentarz...",
+    "post": "Opublikuj",
+    "reply": "Odpowiedz",
+    "noComments": "Brak komentarzy. Bądź pierwszy!",
+    "share_message": "Zobacz tę lekcję na SkillTok!"
+  },
+  "upload": {
+    "title": "Dodaj film",
+    "selectVideo": "Wybierz film",
+    "recordVideo": "Nagraj film",
+    "videoTitle": "Tytuł",
+    "titlePlaceholder": "Nadaj tytuł lekcji",
+    "description": "Opis",
+    "descPlaceholder": "Czego widzowie się nauczą?",
+    "tags": "Tagi",
+    "tagsPlaceholder": "Dodaj tagi (oddzielone przecinkami)",
+    "category": "Kategoria",
+    "selectCategory": "Wybierz kategorię",
+    "coverImage": "Okładka",
+    "uploading": "Przesyłanie...",
+    "uploadSuccess": "Film dodany pomyślnie!",
+    "uploadFailed": "Przesyłanie nie powiodło się",
+    "maxSize": "Maksymalny rozmiar pliku: 50MB",
+    "publish": "Opublikuj",
+    "videoSelected": "Film wybrany",
+    "fillRequired": "Wypełnij tytuł i wybierz kategorię"
+  },
+  "profile": {
+    "followers": "Obserwujący",
+    "following": "Obserwowani",
+    "videos": "Filmy",
+    "saved": "Zapisane",
+    "editProfile": "Edytuj profil",
+    "bio": "Bio",
+    "expertise": "Specjalizacja",
+    "noVideos": "Brak filmów",
+    "noSaved": "Brak zapisanych filmów",
+    "settings": "Ustawienia"
+  },
+  "explore": {
+    "title": "Odkrywaj",
+    "categories": "Kategorie",
+    "trending": "Popularne",
+    "searchPlaceholder": "Szukaj filmów, nauczycieli, tematów..."
+  },
+  "search": {
+    "results": "wyników",
+    "resultsSingular": "wynik"
+  },
+  "settings": {
+    "language": "Język",
+    "darkMode": "Tryb ciemny",
+    "about": "O aplikacji",
+    "version": "Wersja"
+  },
+  "analytics": {
+    "title": "Analityka",
+    "totalViews": "Łączne wyświetlenia",
+    "totalLikes": "Łączne polubienia",
+    "totalComments": "Łączne komentarze",
+    "totalSaves": "Łączne zapisania",
+    "performance": "Wydajność"
+  },
+  "categories": {
+    "ai": "AI",
+    "programming": "Programowanie",
+    "marketing": "Marketing",
+    "business": "Biznes",
+    "finance": "Finanse",
+    "productivity": "Produktywność",
+    "design": "Design",
+    "entrepreneurship": "Przedsiębiorczość",
+    "content-creator": "Twórca treści"
+  }
+}

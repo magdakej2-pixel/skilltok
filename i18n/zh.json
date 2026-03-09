@@ -1,0 +1,148 @@
+{
+  "common": {
+    "appName": "SkillTok",
+    "loading": "加载中...",
+    "error": "出了点问题",
+    "retry": "重试",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "done": "完成",
+    "next": "下一步",
+    "back": "返回",
+    "search": "搜索",
+    "noResults": "未找到结果",
+    "seeAll": "查看全部",
+    "confirm": "确认",
+    "ok": "好的"
+  },
+  "auth": {
+    "welcome": "学习未来技能",
+    "subtitle": "观看AI、商业、设计等领域专家的短视频",
+    "login": "登录",
+    "signup": "注册",
+    "signupTitle": "创建账户",
+    "loginTitle": "欢迎回来",
+    "email": "邮箱",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "displayName": "显示名称",
+    "forgotPassword": "忘记密码？",
+    "noAccount": "没有账户？",
+    "hasAccount": "已有账户？",
+    "orContinueWith": "或继续使用",
+    "google": "使用Google继续",
+    "emailRequired": "请输入邮箱",
+    "passwordRequired": "请输入密码",
+    "passwordMinLength": "密码至少6个字符",
+    "passwordMismatch": "两次密码不一致",
+    "nameRequired": "请输入名称",
+    "loginFailed": "登录失败",
+    "signupFailed": "注册失败",
+    "logout": "退出登录",
+    "logoutConfirm": "确定要退出登录吗？"
+  },
+  "role": {
+    "title": "你将如何使用SkillTok？",
+    "subtitle": "你可以随时更改",
+    "student": "学生",
+    "studentDesc": "观看专家视频学习",
+    "teacher": "教师",
+    "teacherDesc": "用短视频分享你的专业知识",
+    "continue": "继续"
+  },
+  "language": {
+    "title": "选择语言",
+    "subtitle": "选择你的首选语言"
+  },
+  "feed": {
+    "title": "推荐",
+    "following": "关注",
+    "noVideos": "暂无视频",
+    "pullToRefresh": "下拉刷新"
+  },
+  "video": {
+    "like": "赞",
+    "comment": "评论",
+    "share": "分享",
+    "save": "收藏",
+    "follow": "关注",
+    "following": "已关注",
+    "views": "次观看",
+    "comments": "评论",
+    "addComment": "添加评论...",
+    "post": "发布",
+    "reply": "回复",
+    "noComments": "暂无评论，来第一个评论吧！",
+    "share_message": "在SkillTok上看看这节课！"
+  },
+  "upload": {
+    "title": "上传视频",
+    "selectVideo": "选择视频",
+    "recordVideo": "录制视频",
+    "videoTitle": "标题",
+    "titlePlaceholder": "给你的课程起个标题",
+    "description": "描述",
+    "descPlaceholder": "观众将学到什么？",
+    "tags": "标签",
+    "tagsPlaceholder": "添加标签（逗号分隔）",
+    "category": "类别",
+    "selectCategory": "选择类别",
+    "coverImage": "封面图片",
+    "uploading": "上传中...",
+    "uploadSuccess": "视频上传成功！",
+    "uploadFailed": "上传失败，请重试",
+    "maxSize": "最大文件大小：50MB",
+    "publish": "发布",
+    "videoSelected": "已选择视频",
+    "fillRequired": "请填写标题并选择类别"
+  },
+  "profile": {
+    "followers": "粉丝",
+    "following": "关注",
+    "videos": "视频",
+    "saved": "收藏",
+    "editProfile": "编辑资料",
+    "bio": "简介",
+    "expertise": "专业领域",
+    "noVideos": "暂无视频",
+    "noSaved": "暂无收藏",
+    "settings": "设置"
+  },
+  "explore": {
+    "title": "发现",
+    "categories": "类别",
+    "trending": "热门",
+    "searchPlaceholder": "搜索视频、教师、主题..."
+  },
+  "search": {
+    "results": "个结果",
+    "resultsSingular": "个结果"
+  },
+  "settings": {
+    "language": "语言",
+    "darkMode": "深色模式",
+    "about": "关于",
+    "version": "版本"
+  },
+  "analytics": {
+    "title": "数据分析",
+    "totalViews": "总观看量",
+    "totalLikes": "总点赞数",
+    "totalComments": "总评论数",
+    "totalSaves": "总收藏数",
+    "performance": "表现"
+  },
+  "categories": {
+    "ai": "人工智能",
+    "programming": "编程",
+    "marketing": "营销",
+    "business": "商业",
+    "finance": "金融",
+    "productivity": "效率",
+    "design": "设计",
+    "entrepreneurship": "创业",
+    "content-creator": "内容创作"
+  }
+}
