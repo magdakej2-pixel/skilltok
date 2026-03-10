@@ -6,7 +6,7 @@ import en from './en.json';
 import pl from './pl.json';
 import zh from './zh.json';
 
-const LANGUAGE_KEY = '@skilltok_language';
+const LANGUAGE_KEY = '@quelio_language';
 
 // Language detector that uses AsyncStorage
 const languageDetector = {

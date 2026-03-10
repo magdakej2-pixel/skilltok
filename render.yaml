@@ -1,10 +1,10 @@
-# Render Blueprint — SkillTok Backend
+# Render Blueprint — QUELIO Backend + Landing Page
 # Deploy with: render.yaml in project root
 # Docs: https://render.com/docs/blueprint-spec
 
 services:
   - type: web
-    name: skilltok-api
+    name: quelio-api
     runtime: node
     region: frankfurt
     plan: free
@@ -24,4 +24,6 @@ services:
       - key: FIREBASE_CLIENT_EMAIL
         sync: false
       - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
         sync: false

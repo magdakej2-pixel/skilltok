@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { auth } from '@/services/firebase';
 import { authAPI } from '@/services/api';
 import { useAuthStore } from '@/store';
-import { Colors, Spacing, Typography, Radius } from '@/constants/theme';
+import { Colors, Spacing, Typography, Radius, CategoryConfig } from '@/constants/theme';
 import { useColorScheme } from '@/components/useColorScheme';
+
+const CATEGORIES = Object.keys(CategoryConfig);
 
 export default function RoleSelectScreen() {
   const router = useRouter();
@@ -16,39 +19,68 @@ export default function RoleSelectScreen() {
   const { setUser } = useAuthStore();
 
   const [selectedRole, setSelectedRole] = useState<'student' | 'teacher' | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const roles = [
     {
       key: 'student' as const,
-      emoji: '📚',
       title: t('role.student'),
       desc: t('role.studentDesc'),
-      gradient: ['#00CEC9', '#00B894'],
     },
     {
       key: 'teacher' as const,
-      emoji: '🎓',
       title: t('role.teacher'),
       desc: t('role.teacherDesc'),
-      gradient: ['#6C5CE7', '#A29BFE'],
     },
   ];
 
+  const showError = (msg: string) => {
+    if (typeof window !== 'undefined') window.alert(msg);
+    else Alert.alert(t('common.error'), msg);
+  };
+
+  const canContinue = selectedRole === 'student' || (selectedRole === 'teacher' && selectedCategory);
+
   const handleContinue = async () => {
-    if (!selectedRole) return;
+    if (!canContinue) return;
     setLoading(true);
     try {
+      let user = auth.currentUser;
+      if (!user) {
+        for (let i = 0; i < 10; i++) {
+          await new Promise(r => setTimeout(r, 500));
+          user = auth.currentUser;
+          if (user) break;
+        }
+      }
+      if (!user) {
+        showError('Firebase session expired. Please sign up again.');
+        setLoading(false);
+        return;
+      }
+
       const response = await authAPI.register({
         displayName: displayName || 'User',
-        role: selectedRole,
+        role: selectedRole!,
         language: 'en',
+        expertiseCategory: selectedRole === 'teacher' ? selectedCategory || undefined : undefined,
       });
       setUser(response.data.user);
-      // Navigate to language selection
       router.replace('/(auth)/language-select');
     } catch (error: any) {
-      Alert.alert(t('common.error'), error.response?.data?.error?.message || 'Registration failed');
+      console.error('Register error:', error?.response?.status, error?.response?.data, error?.message);
+      if (error.response?.status === 409) {
+        try {
+          const loginRes = await authAPI.login();
+          setUser(loginRes.data.user);
+          router.replace('/(auth)/language-select');
+          return;
+        } catch (e) {
+          console.error('Login fallback error:', e);
+        }
+      }
+      showError(error.response?.data?.error?.message || error.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -56,7 +88,7 @@ export default function RoleSelectScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={[styles.title, { color: colors.text }]}>{t('role.title')}</Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('role.subtitle')}</Text>
 
@@ -72,12 +104,9 @@ export default function RoleSelectScreen() {
                   borderWidth: selectedRole === role.key ? 2 : 1,
                 },
               ]}
-              onPress={() => setSelectedRole(role.key)}
+              onPress={() => { setSelectedRole(role.key); if (role.key === 'student') setSelectedCategory(null); }}
               activeOpacity={0.7}
             >
-              <View style={[styles.emojiContainer, { backgroundColor: selectedRole === role.key ? colors.primary + '20' : colors.surfaceElevated }]}>
-                <Text style={styles.emoji}>{role.emoji}</Text>
-              </View>
               <Text style={[styles.cardTitle, { color: colors.text }]}>{role.title}</Text>
               <Text style={[styles.cardDesc, { color: colors.textSecondary }]}>{role.desc}</Text>
               {selectedRole === role.key && (
@@ -88,25 +117,60 @@ export default function RoleSelectScreen() {
             </TouchableOpacity>
           ))}
         </View>
-      </View>
+
+        {/* Category selection for specialist */}
+        {selectedRole === 'teacher' && (
+          <View style={styles.categorySection}>
+            <Text style={[styles.categoryTitle, { color: colors.text }]}>
+              {t('role.selectCategory')}
+            </Text>
+            <View style={styles.categoryGrid}>
+              {CATEGORIES.map((cat) => {
+                const config = CategoryConfig[cat];
+                const isSelected = selectedCategory === cat;
+                return (
+                  <TouchableOpacity
+                    key={cat}
+                    style={[
+                      styles.categoryChip,
+                      {
+                        backgroundColor: isSelected ? config.color + '20' : colors.surface,
+                        borderColor: isSelected ? config.color : colors.border,
+                        borderWidth: isSelected ? 2 : 1,
+                      },
+                    ]}
+                    onPress={() => setSelectedCategory(cat)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.categoryIcon}>{config.icon}</Text>
+                    <Text style={[styles.categoryLabel, { color: isSelected ? config.color : colors.text }]}>
+                      {cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' ')}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        )}
+      </ScrollView>
 
       <View style={styles.footer}>
         <TouchableOpacity
           style={[
             styles.button,
             {
-              backgroundColor: selectedRole ? colors.primary : colors.border,
+              backgroundColor: canContinue ? colors.primary : colors.border,
               opacity: loading ? 0.7 : 1,
             },
           ]}
           onPress={handleContinue}
-          disabled={!selectedRole || loading}
+          disabled={!canContinue || loading}
           activeOpacity={0.8}
         >
           {loading ? (
             <ActivityIndicator color="#FFF" />
           ) : (
-            <Text style={[styles.buttonText, { color: selectedRole ? '#FFF' : colors.textTertiary }]}>
+            <Text style={[styles.buttonText, { color: canContinue ? '#FFF' : colors.textTertiary }]}>
               {t('role.continue')}
             </Text>
           )}
@@ -118,7 +182,7 @@ export default function RoleSelectScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  content: { flex: 1, paddingHorizontal: Spacing.xl, paddingTop: 80 },
+  scrollContent: { paddingHorizontal: Spacing.xl, paddingTop: 80, paddingBottom: 120 },
   title: { fontSize: Typography.sizes.xxl, fontWeight: '800', textAlign: 'center', marginBottom: Spacing.sm },
   subtitle: { fontSize: Typography.sizes.md, textAlign: 'center', marginBottom: Spacing.xxxl },
   cardsContainer: { flexDirection: 'row', gap: Spacing.lg },
@@ -139,7 +203,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center',
   },
   checkmarkText: { color: '#FFF', fontSize: 14, fontWeight: '700' },
-  footer: { paddingHorizontal: Spacing.xl, paddingBottom: Spacing.xxxxl },
+  // Category selection
+  categorySection: { marginTop: Spacing.xxl },
+  categoryTitle: { fontSize: Typography.sizes.lg, fontWeight: '700', marginBottom: Spacing.lg, textAlign: 'center' },
+  categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, justifyContent: 'center' },
+  categoryChip: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.xs,
+    paddingHorizontal: Spacing.lg, paddingVertical: Spacing.md,
+    borderRadius: Radius.xl,
+  },
+  categoryIcon: { fontSize: 18 },
+  categoryLabel: { fontSize: Typography.sizes.sm, fontWeight: '600' },
+  // Footer
+  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: Spacing.xl, paddingBottom: Spacing.xxxxl },
   button: {
     paddingVertical: Spacing.lg, borderRadius: Radius.xl, alignItems: 'center',
   },

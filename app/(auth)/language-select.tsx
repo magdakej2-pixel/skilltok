@@ -33,6 +33,8 @@ export default function LanguageSelectScreen() {
   };
 
   const handleContinue = () => {
+    // Registration flow complete — clear the flag so nav guard works normally
+    useAuthStore.getState().setRegistering(false);
     router.replace('/(tabs)/feed');
   };
 

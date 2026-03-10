@@ -3,12 +3,15 @@ import {
   View, Text, StyleSheet, TextInput, TouchableOpacity,
   KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/services/firebase';
 import { Colors, Spacing, Typography, Radius } from '@/constants/theme';
 import { useColorScheme } from '@/components/useColorScheme';
+import { useAuthStore } from '@/store';
+import { authAPI } from '@/services/api';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -20,6 +23,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [showPassword, setShowPassword] = useState(false);
 
   const validate = () => {
     const newErrors: typeof errors = {};
@@ -30,14 +34,51 @@ export default function LoginScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const showAlert = (title: string, msg: string) => {
+    if (Platform.OS === 'web') {
+      window.alert(`${title}: ${msg}`);
+    } else {
+      Alert.alert(title, msg);
+    }
+  };
+
   const handleLogin = async () => {
     if (!validate()) return;
     setLoading(true);
     try {
+      // Block onAuthStateChanged from racing with our login flow
+      useAuthStore.getState().setRegistering(true);
+      console.log('Logging in with:', email.trim());
       await signInWithEmailAndPassword(auth, email.trim(), password);
-      // Auth state listener in _layout.tsx will handle navigation
+      console.log('Firebase login success');
+      // Try to fetch user from MongoDB
+      try {
+        const response = await authAPI.login();
+        console.log('API login response:', response.data);
+        useAuthStore.getState().setUser(response.data.user);
+        // Clear registering flag — nav guard will redirect to feed
+        useAuthStore.getState().setRegistering(false);
+      } catch (err: any) {
+        console.error('API login error:', err.response?.data || err.message);
+        // User exists in Firebase but not in MongoDB — complete registration
+        if (err.response?.data?.error?.code === 'NOT_REGISTERED') {
+          // Keep isRegistering=true so nav guard doesn't interfere
+          router.replace({ pathname: '/(auth)/role-select', params: { displayName: email.split('@')[0] } });
+        } else {
+          useAuthStore.getState().setRegistering(false);
+          showAlert(t('common.error'), err.response?.data?.error?.message || t('auth.loginFailed'));
+        }
+      }
     } catch (error: any) {
-      Alert.alert(t('common.error'), t('auth.loginFailed'));
+      console.error('Firebase login error:', error.code, error.message);
+      useAuthStore.getState().setRegistering(false);
+      let msg = t('auth.loginFailed');
+      if (error.code === 'auth/user-not-found') msg = 'Użytkownik nie istnieje';
+      else if (error.code === 'auth/wrong-password') msg = 'Błędne hasło';
+      else if (error.code === 'auth/invalid-email') msg = 'Nieprawidłowy email';
+      else if (error.code === 'auth/invalid-credential') msg = 'Nieprawidłowe dane logowania';
+      else if (error.code === 'auth/too-many-requests') msg = 'Za dużo prób — spróbuj później';
+      showAlert(t('common.error'), msg);
     } finally {
       setLoading(false);
     }
@@ -78,14 +119,22 @@ export default function LoginScreen() {
         {/* Password */}
         <View style={styles.inputGroup}>
           <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.password')}</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: errors.password ? colors.error : colors.border }]}
-            placeholder={t('auth.password')}
-            placeholderTextColor={colors.textTertiary}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
+          <View style={{ position: 'relative' as const }}>
+            <TextInput
+              style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: errors.password ? colors.error : colors.border, paddingRight: 48 }]}
+              placeholder={t('auth.password')}
+              placeholderTextColor={colors.textTertiary}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={{ position: 'absolute' as const, right: 14, top: 0, bottom: 0, justifyContent: 'center' as const }}
+            >
+              <Ionicons name={showPassword ? 'eye' : 'eye-off'} size={22} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
           {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
         </View>
 

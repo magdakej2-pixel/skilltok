@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "SkillTok",
+    "appName": "QUELIO",
     "loading": "Ładowanie...",
     "error": "Coś poszło nie tak",
     "retry": "Spróbuj ponownie",
@@ -44,12 +44,15 @@
     "logoutConfirm": "Czy na pewno chcesz się wylogować?"
   },
   "role": {
-    "title": "Jak będziesz używać SkillTok?",
+    "title": "Jak będziesz używać QUELIO?",
     "subtitle": "Zawsze możesz to zmienić później",
     "student": "Student",
     "studentDesc": "Oglądaj i ucz się z filmów ekspertów",
-    "teacher": "Nauczyciel",
+    "teacher": "Ekspert",
+    "teacherFemale": "Ekspertka",
+    "studentFemale": "Studentka",
     "teacherDesc": "Dziel się wiedzą w krótkich filmach",
+    "selectCategory": "Wybierz swoją specjalizację",
     "continue": "Kontynuuj"
   },
   "language": {
@@ -75,7 +78,7 @@
     "post": "Opublikuj",
     "reply": "Odpowiedz",
     "noComments": "Brak komentarzy. Bądź pierwszy!",
-    "share_message": "Zobacz tę lekcję na SkillTok!"
+    "share_message": "Zobacz tę lekcję na QUELIO!"
   },
   "upload": {
     "title": "Dodaj film",
@@ -99,6 +102,7 @@
     "fillRequired": "Wypełnij tytuł i wybierz kategorię"
   },
   "profile": {
+    "title": "Profil",
     "followers": "Obserwujący",
     "following": "Obserwowani",
     "videos": "Filmy",
@@ -108,7 +112,13 @@
     "expertise": "Specjalizacja",
     "noVideos": "Brak filmów",
     "noSaved": "Brak zapisanych filmów",
-    "settings": "Ustawienia"
+    "liked": "Polubione",
+    "myVideos": "Moje filmy",
+    "noLiked": "Brak polubionych filmów",
+    "settings": "Ustawienia",
+    "changePhoto": "Zmień zdjęcie",
+    "nameChangeHint": "Możesz zmienić nazwę raz na tydzień",
+    "bioPlaceholder": "Opowiedz uczniom o sobie..."
   },
   "explore": {
     "title": "Odkrywaj",
@@ -125,6 +135,65 @@
     "darkMode": "Tryb ciemny",
     "about": "O aplikacji",
     "version": "Wersja"
+  },
+  "settingsPanel": {
+    "title": "Ustawienia i prywatność",
+    "settings": "Ustawienia",
+    "privacy": "Prywatność",
+    "activity": "Aktywność",
+    "account": "Konto",
+    "email": "Email",
+    "role": "Rola",
+    "memberSince": "Członek od",
+    "notifications": "Powiadomienia",
+    "pushNotifications": "Powiadomienia push",
+    "pushDesc": "Otrzymuj powiadomienia o nowych treściach",
+    "emailNotifications": "Powiadomienia email",
+    "emailDesc": "Otrzymuj tygodniowe podsumowanie najlepszych filmów",
+    "languageRegion": "Język i region",
+    "appearance": "Wygląd",
+    "darkMode": "Tryb ciemny",
+    "darkModeDesc": "Używaj ciemnego motywu w aplikacji",
+    "autoplay": "Autoodtwarzanie",
+    "autoplayDesc": "Automatycznie odtwarzaj filmy w feedzie",
+    "dataUsage": "Oszczędzanie danych",
+    "dataUsageDesc": "Zmniejsz zużycie danych w sieciach mobilnych",
+    "aboutApp": "O QUELIO",
+    "appVersion": "Wersja aplikacji",
+    "termsOfService": "Regulamin",
+    "privacyPolicy": "Polityka prywatności",
+    "licenses": "Licencje open source",
+    "privateAccount": "Prywatne konto",
+    "privateAccountDesc": "Tylko zatwierdzeni obserwujący widzą Twoje treści",
+    "allowComments": "Zezwalaj na komentarze",
+    "allowCommentsDesc": "Pozwól innym komentować Twoje filmy",
+    "allowMessages": "Zezwalaj na wiadomości",
+    "allowMessagesDesc": "Pozwól innym wysyłać Ci wiadomości",
+    "allowDuets": "Zezwalaj na duety",
+    "allowDuetsDesc": "Pozwól innym tworzyć duety z Twoimi filmami",
+    "blockedUsers": "Zablokowani użytkownicy",
+    "blockedUsersDesc": "Zarządzaj zablokowanymi kontami",
+    "noBlockedUsers": "Brak zablokowanych użytkowników",
+    "dataStorage": "Dane i pamięć",
+    "cacheSize": "Rozmiar pamięci podręcznej",
+    "clearCache": "Wyczyść pamięć podręczną",
+    "downloadOverWifi": "Pobieraj tylko przez Wi-Fi",
+    "downloadWifiDesc": "Pobieraj treści tylko przez Wi-Fi",
+    "watchHistory": "Historia oglądania",
+    "watchHistoryDesc": "Filmy, które obejrzałeś",
+    "likedVideos": "Polubione filmy",
+    "likedVideosDesc": "Filmy, które polubiłeś",
+    "commentedVideos": "Skomentowane filmy",
+    "commentedVideosDesc": "Filmy, które skomentowałeś",
+    "loginActivity": "Aktywność logowania",
+    "lastLogin": "Ostatnie logowanie",
+    "currentSession": "Bieżąca sesja",
+    "accountCreated": "Konto utworzono",
+    "videosWatched": "obejrzanych filmów",
+    "videosLiked": "polubionych filmów",
+    "commentsPosted": "opublikowanych komentarzy",
+    "close": "Zamknij",
+    "comingSoon": "Wkrótce"
   },
   "analytics": {
     "title": "Analityka",
@@ -144,5 +213,24 @@
     "design": "Design",
     "entrepreneurship": "Przedsiębiorczość",
     "content-creator": "Twórca treści"
+  },
+  "coffee": {
+    "title": "Postaw kawę ☕",
+    "message": "Jeśli podobają Ci się treści {{name}}, możesz wesprzeć rozwój twórcy stawiając mu wirtualną kawę.",
+    "coffee": "kawa",
+    "buyButton": "Kup",
+    "thanks": "Dziękujemy za wsparcie!",
+    "thanksMessage": "Twoja kawa pomaga tworzyć lepsze treści.",
+    "secure": "Bezpieczna płatność przez Stripe",
+    "coffees": "Kawy"
+  },
+  "messages": {
+    "title": "Wiadomości",
+    "noConversations": "Brak konwersacji",
+    "startChat": "Rozpocznij rozmowę z profilu użytkownika",
+    "typeMessage": "Napisz wiadomość...",
+    "you": "Ty",
+    "online": "Online",
+    "newMessage": "Nowa wiadomość"
   }
 }

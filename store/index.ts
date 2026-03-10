@@ -14,14 +14,17 @@ export interface AppUser {
   followersCount: number;
   followingCount: number;
   videosCount: number;
+  coffeesReceived?: number;
 }
 
 interface AuthState {
   user: AppUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isRegistering: boolean;
   setUser: (user: AppUser | null) => void;
   setLoading: (loading: boolean) => void;
+  setRegistering: (registering: boolean) => void;
   logout: () => void;
 }
 
@@ -29,9 +32,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
+  isRegistering: false,
   setUser: (user) => set({ user, isAuthenticated: !!user }),
   setLoading: (isLoading) => set({ isLoading }),
-  logout: () => set({ user: null, isAuthenticated: false }),
+  setRegistering: (isRegistering) => set({ isRegistering }),
+  logout: () => set({ user: null, isAuthenticated: false, isRegistering: false }),
 }));
 
 // ============ VIDEO STORE ============
@@ -56,6 +61,7 @@ export interface Video {
   likesCount: number;
   commentsCount: number;
   savesCount: number;
+  sharesCount?: number;
   createdAt: string;
 }
 

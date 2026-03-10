@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "SkillTok",
+    "appName": "QUELIO",
     "loading": "加载中...",
     "error": "出了点问题",
     "retry": "重试",
@@ -44,12 +44,13 @@
     "logoutConfirm": "确定要退出登录吗？"
   },
   "role": {
-    "title": "你将如何使用SkillTok？",
+    "title": "你将如何使用QUELIO？",
     "subtitle": "你可以随时更改",
     "student": "学生",
     "studentDesc": "观看专家视频学习",
-    "teacher": "教师",
+    "teacher": "专家",
     "teacherDesc": "用短视频分享你的专业知识",
+    "selectCategory": "选择你的专业领域",
     "continue": "继续"
   },
   "language": {
@@ -75,7 +76,7 @@
     "post": "发布",
     "reply": "回复",
     "noComments": "暂无评论，来第一个评论吧！",
-    "share_message": "在SkillTok上看看这节课！"
+    "share_message": "在QUELIO上看看这节课！"
   },
   "upload": {
     "title": "上传视频",
@@ -99,6 +100,7 @@
     "fillRequired": "请填写标题并选择类别"
   },
   "profile": {
+    "title": "个人资料",
     "followers": "粉丝",
     "following": "关注",
     "videos": "视频",
@@ -108,7 +110,13 @@
     "expertise": "专业领域",
     "noVideos": "暂无视频",
     "noSaved": "暂无收藏",
-    "settings": "设置"
+    "liked": "喜欢",
+    "myVideos": "我的视频",
+    "noLiked": "暂无喜欢的视频",
+    "settings": "设置",
+    "changePhoto": "更换头像",
+    "nameChangeHint": "每周只能更改一次名字",
+    "bioPlaceholder": "向学生介绍自己..."
   },
   "explore": {
     "title": "发现",
@@ -125,6 +133,65 @@
     "darkMode": "深色模式",
     "about": "关于",
     "version": "版本"
+  },
+  "settingsPanel": {
+    "title": "设置与隐私",
+    "settings": "设置",
+    "privacy": "隐私",
+    "activity": "活动",
+    "account": "账户",
+    "email": "邮箱",
+    "role": "角色",
+    "memberSince": "注册时间",
+    "notifications": "通知",
+    "pushNotifications": "推送通知",
+    "pushDesc": "接收新内容的推送通知",
+    "emailNotifications": "邮件通知",
+    "emailDesc": "接收每周热门视频摘要",
+    "languageRegion": "语言与地区",
+    "appearance": "外观",
+    "darkMode": "深色模式",
+    "darkModeDesc": "在应用中使用深色主题",
+    "autoplay": "自动播放视频",
+    "autoplayDesc": "自动播放动态中的视频",
+    "dataUsage": "省流量模式",
+    "dataUsageDesc": "在移动网络上减少数据使用",
+    "aboutApp": "关于QUELIO",
+    "appVersion": "应用版本",
+    "termsOfService": "服务条款",
+    "privacyPolicy": "隐私政策",
+    "licenses": "开源许可",
+    "privateAccount": "私密账户",
+    "privateAccountDesc": "只有获批的粉丝才能看到你的内容",
+    "allowComments": "允许评论",
+    "allowCommentsDesc": "允许他人评论你的视频",
+    "allowMessages": "允许私信",
+    "allowMessagesDesc": "允许他人给你发私信",
+    "allowDuets": "允许合拍",
+    "allowDuetsDesc": "允许他人与你的视频合拍",
+    "blockedUsers": "黑名单",
+    "blockedUsersDesc": "管理被屏蔽的账户",
+    "noBlockedUsers": "没有被屏蔽的用户",
+    "dataStorage": "数据与存储",
+    "cacheSize": "缓存大小",
+    "clearCache": "清除缓存",
+    "downloadOverWifi": "仅Wi-Fi下载",
+    "downloadWifiDesc": "仅在Wi-Fi环境下载内容",
+    "watchHistory": "观看历史",
+    "watchHistoryDesc": "你看过的视频",
+    "likedVideos": "喜欢的视频",
+    "likedVideosDesc": "你点赞的视频",
+    "commentedVideos": "评论的视频",
+    "commentedVideosDesc": "你评论过的视频",
+    "loginActivity": "登录活动",
+    "lastLogin": "上次登录",
+    "currentSession": "当前会话",
+    "accountCreated": "账户创建于",
+    "videosWatched": "观看的视频",
+    "videosLiked": "点赞的视频",
+    "commentsPosted": "发表的评论",
+    "close": "关闭",
+    "comingSoon": "即将推出"
   },
   "analytics": {
     "title": "数据分析",
@@ -144,5 +211,24 @@
     "design": "设计",
     "entrepreneurship": "创业",
     "content-creator": "内容创作"
+  },
+  "coffee": {
+    "title": "请喝咖啡 ☕",
+    "message": "如果你喜欢{{name}}的内容，可以请他喝一杯虚拟咖啡来表示支持。",
+    "coffee": "咖啡",
+    "buyButton": "购买",
+    "thanks": "感谢你的支持！",
+    "thanksMessage": "你的咖啡帮助创作者制作更好的内容。",
+    "secure": "通过Stripe安全支付",
+    "coffees": "咖啡"
+  },
+  "messages": {
+    "title": "消息",
+    "noConversations": "暂无会话",
+    "startChat": "从用户资料开始对话",
+    "typeMessage": "输入消息...",
+    "you": "你",
+    "online": "在线",
+    "newMessage": "新消息"
   }
 }

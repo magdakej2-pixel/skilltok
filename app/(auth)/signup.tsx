@@ -3,12 +3,14 @@ import {
   View, Text, StyleSheet, TextInput, TouchableOpacity,
   KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/services/firebase';
 import { Colors, Spacing, Typography, Radius } from '@/constants/theme';
 import { useColorScheme } from '@/components/useColorScheme';
+import { useAuthStore } from '@/store';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -38,40 +40,64 @@ export default function SignupScreen() {
     if (!validate()) return;
     setLoading(true);
     try {
+      // Set registering flag BEFORE creating Firebase user
+      // to prevent onAuthStateChanged from interfering
+      useAuthStore.getState().setRegistering(true);
       await createUserWithEmailAndPassword(auth, email.trim(), password);
       // After Firebase account creation, navigate to role selection
-      // Pass displayName via router params
       router.replace({ pathname: '/(auth)/role-select', params: { displayName: displayName.trim() } });
     } catch (error: any) {
+      useAuthStore.getState().setRegistering(false);
       Alert.alert(t('common.error'), t('auth.signupFailed'));
     } finally {
       setLoading(false);
     }
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const renderInput = (
     label: string, value: string, onChangeText: (t: string) => void,
     errorKey: string, options: { secure?: boolean; keyboardType?: any; autoCapitalize?: any } = {}
-  ) => (
-    <View style={styles.inputGroup}>
-      <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
-      <TextInput
-        style={[styles.input, {
-          backgroundColor: colors.surface, color: colors.text,
-          borderColor: errors[errorKey] ? colors.error : colors.border,
-        }]}
-        placeholder={label}
-        placeholderTextColor={colors.textTertiary}
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={options.secure}
-        keyboardType={options.keyboardType}
-        autoCapitalize={options.autoCapitalize ?? 'none'}
-        autoCorrect={false}
-      />
-      {errors[errorKey] && <Text style={styles.errorText}>{errors[errorKey]}</Text>}
-    </View>
-  );
+  ) => {
+    const isPassword = errorKey === 'password';
+    const isConfirm = errorKey === 'confirmPassword';
+    const showPw = isPassword ? showPassword : isConfirm ? showConfirm : false;
+    const togglePw = isPassword ? () => setShowPassword(!showPassword) : () => setShowConfirm(!showConfirm);
+
+    return (
+      <View style={styles.inputGroup}>
+        <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
+        <View style={{ position: 'relative' as const }}>
+          <TextInput
+            style={[styles.input, {
+              backgroundColor: colors.surface, color: colors.text,
+              borderColor: errors[errorKey] ? colors.error : colors.border,
+              ...(options.secure ? { paddingRight: 48 } : {}),
+            }]}
+            placeholder={label}
+            placeholderTextColor={colors.textTertiary}
+            value={value}
+            onChangeText={onChangeText}
+            secureTextEntry={options.secure ? !showPw : false}
+            keyboardType={options.keyboardType}
+            autoCapitalize={options.autoCapitalize ?? 'none'}
+            autoCorrect={false}
+          />
+          {options.secure && (
+            <TouchableOpacity
+              onPress={togglePw}
+              style={{ position: 'absolute' as const, right: 14, top: 0, bottom: 0, justifyContent: 'center' as const }}
+            >
+              <Ionicons name={showPw ? 'eye' : 'eye-off'} size={22} color={colors.textSecondary} />
+            </TouchableOpacity>
+          )}
+        </View>
+        {errors[errorKey] && <Text style={styles.errorText}>{errors[errorKey]}</Text>}
+      </View>
+    );
+  };
 
   return (
     <KeyboardAvoidingView

@@ -23,15 +23,22 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    PoppinsBold: require('@expo-google-fonts/poppins/700Bold/Poppins_700Bold.ttf'),
+    PoppinsSemiBold: require('@expo-google-fonts/poppins/600SemiBold/Poppins_600SemiBold.ttf'),
   });
 
-  const { setUser, setLoading, isAuthenticated, isLoading } = useAuthStore();
+  const { setUser, setLoading, isAuthenticated, isLoading, isRegistering } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
 
   // Listen for Firebase auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      // Skip auto-login during registration flow
+      if (useAuthStore.getState().isRegistering) {
+        setLoading(false);
+        return;
+      }
       if (firebaseUser) {
         try {
           const response = await authAPI.login();
@@ -52,7 +59,7 @@ export default function RootLayout() {
 
   // Navigation guard: redirect based on auth state
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || isRegistering) return;
 
     const inAuthGroup = segments[0] === '(auth)';
 
@@ -61,7 +68,7 @@ export default function RootLayout() {
     } else if (isAuthenticated && inAuthGroup) {
       router.replace('/(tabs)/feed');
     }
-  }, [isAuthenticated, segments, isLoading]);
+  }, [isAuthenticated, segments, isLoading, isRegistering]);
 
   useEffect(() => {
     if (error) throw error;

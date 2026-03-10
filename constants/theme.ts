@@ -1,13 +1,13 @@
 /**
- * SkillTok Design System — Colors, Typography, Spacing
+ * QUELIO Design System — Colors, Typography, Spacing
  * Supports dark and light mode.
  */
 
 // Color palette
 export const Colors = {
   light: {
-    primary: '#6C5CE7',        // Vibrant purple
-    primaryLight: '#A29BFE',
+    primary: '#4ECDC4',        // Teal — QUELIO brand
+    primaryLight: '#6EE7DE',
     secondary: '#00CEC9',      // Teal accent
     background: '#FFFFFF',
     surface: '#F8F9FA',
@@ -24,12 +24,12 @@ export const Colors = {
     tabBar: '#FFFFFF',
     tabBarBorder: '#E5E7EB',
     icon: '#6B7280',
-    iconActive: '#6C5CE7',
+    iconActive: '#4ECDC4',
   },
   dark: {
-    primary: '#A29BFE',        // Lighter purple for dark mode
-    primaryLight: '#6C5CE7',
-    secondary: '#00CEC9',
+    primary: '#4ECDC4',        // Teal — QUELIO brand
+    primaryLight: '#6EE7DE',
+    secondary: '#6C5CE7',
     background: '#0F0F1A',
     surface: '#1A1A2E',
     surfaceElevated: '#252540',
@@ -45,7 +45,21 @@ export const Colors = {
     tabBar: '#1A1A2E',
     tabBarBorder: '#2D2D44',
     icon: '#9CA3AF',
-    iconActive: '#A29BFE',
+    iconActive: '#4ECDC4',
+  },
+};
+
+// Role-based primary color overrides
+export const RoleColors = {
+  student: {
+    primary: '#4ECDC4',        // Teal
+    primaryLight: '#6EE7DE',
+    iconActive: '#4ECDC4',
+  },
+  teacher: {
+    primary: '#6C5CE7',        // Purple
+    primaryLight: '#A29BFE',
+    iconActive: '#6C5CE7',
   },
 };
 

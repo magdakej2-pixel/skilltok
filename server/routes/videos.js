@@ -56,6 +56,27 @@ router.get('/saved', authenticate, requireUser, async (req, res) => {
   }
 });
 
+// GET /api/videos/liked — User's liked videos
+router.get('/liked', authenticate, requireUser, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+
+    const liked = await Like.find({ userId: req.user._id })
+      .populate({
+        path: 'videoId',
+        populate: { path: 'teacherId', select: 'displayName avatarUrl' },
+      })
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.json({ videos: liked.map((l) => l.videoId).filter(Boolean) });
+  } catch (error) {
+    res.status(500).json({ error: { message: 'Failed to fetch liked videos' } });
+  }
+});
+
 // GET /api/videos/teacher/:id — Teacher's uploaded videos
 router.get('/teacher/:id', async (req, res) => {
   try {
@@ -252,5 +273,34 @@ router.post(
     }
   }
 );
+
+// POST /api/videos/:id/comments/:commentId/like — Toggle like on a comment
+router.post('/:id/comments/:commentId/like', authenticate, requireUser, async (req, res) => {
+  try {
+    console.log('Comment like request:', req.params.commentId, 'by user:', req.user?._id);
+    const comment = await Comment.findById(req.params.commentId);
+    if (!comment) return res.status(404).json({ error: { message: 'Comment not found' } });
+
+    // Simple toggle: track liked users in a field, or just increment/decrement
+    // For MVP, we'll use a simple liked array approach
+    if (!comment.likedBy) comment.likedBy = [];
+    const userId = req.user._id.toString();
+    const alreadyLiked = comment.likedBy.includes(userId);
+
+    if (alreadyLiked) {
+      comment.likedBy = comment.likedBy.filter(id => id !== userId);
+      comment.likesCount = Math.max(0, (comment.likesCount || 0) - 1);
+    } else {
+      comment.likedBy.push(userId);
+      comment.likesCount = (comment.likesCount || 0) + 1;
+    }
+    await comment.save();
+
+    res.json({ liked: !alreadyLiked, likesCount: comment.likesCount });
+  } catch (error) {
+    console.error('Comment like error:', error);
+    res.status(500).json({ error: { message: 'Like action failed' } });
+  }
+});
 
 module.exports = router;

@@ -7,12 +7,13 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
-  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || 'YOUR_API_KEY',
-  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || 'YOUR_PROJECT.firebaseapp.com',
-  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || 'YOUR_PROJECT_ID',
-  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || 'YOUR_PROJECT.appspot.com',
-  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '000000000000',
-  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || '1:000000000000:web:xxxxxxxxxxxx',
+  apiKey: 'AIzaSyBsLW6GINIluKiEbI4X_85AjRK1QbjRHwo',
+  authDomain: 'skilltok-5053f.firebaseapp.com',
+  projectId: 'skilltok-5053f',
+  storageBucket: 'skilltok-5053f.firebasestorage.app',
+  messagingSenderId: '407572820644',
+  appId: '1:407572820644:web:6f3d6d1c4a961455682c31',
+  measurementId: 'G-W48M279K6W',
 };
 
 // Initialize Firebase

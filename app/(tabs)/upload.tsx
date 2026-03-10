@@ -9,13 +9,19 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/services/firebase';
 import { videosAPI, categoriesAPI } from '@/services/api';
 import { useAuthStore } from '@/store';
-import { Colors, Spacing, Typography, Radius, CategoryConfig } from '@/constants/theme';
+import { Spacing, Typography, Radius, CategoryConfig } from '@/constants/theme';
+import { useRoleColors } from '@/hooks/useRoleColors';
 import { useColorScheme } from '@/components/useColorScheme';
+
+const showAlert = (title: string, msg?: string) => {
+  const text = msg ? `${title}: ${msg}` : title;
+  if (typeof window !== 'undefined') window.alert(text);
+  else Alert.alert(title, msg);
+};
 
 export default function UploadScreen() {
   const { t } = useTranslation();
-  const colorScheme = useColorScheme() ?? 'dark';
-  const colors = Colors[colorScheme];
+  const colors = useRoleColors();
   const { user } = useAuthStore();
 
   const [videoUri, setVideoUri] = useState<string | null>(null);
@@ -50,7 +56,7 @@ export default function UploadScreen() {
       const asset = result.assets[0];
       // Check file size (50MB max)
       if (asset.fileSize && asset.fileSize > 50 * 1024 * 1024) {
-        Alert.alert(t('common.error'), t('upload.maxSize'));
+        showAlert(t('common.error'), t('upload.maxSize'));
         return;
       }
       setVideoUri(asset.uri);
@@ -59,7 +65,7 @@ export default function UploadScreen() {
 
   const handleUpload = async () => {
     if (!videoUri || !title.trim() || !category) {
-      Alert.alert(t('common.error'), t('upload.fillRequired'));
+      showAlert(t('common.error'), t('upload.fillRequired'));
       return;
     }
 
@@ -67,12 +73,19 @@ export default function UploadScreen() {
     setProgress(0);
 
     try {
+      // Get blob from URI — XMLHttpRequest works on both web and native
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = () => resolve(xhr.response);
+        xhr.onerror = () => reject(new Error('Failed to load video file'));
+        xhr.responseType = 'blob';
+        xhr.open('GET', videoUri, true);
+        xhr.send();
+      });
+
       // Upload video to Firebase Storage
       const filename = `videos/${user?._id}/${Date.now()}.mp4`;
       const storageRef = ref(storage, filename);
-
-      const response = await fetch(videoUri);
-      const blob = await response.blob();
 
       const uploadTask = uploadBytesResumable(storageRef, blob);
 
@@ -82,7 +95,8 @@ export default function UploadScreen() {
           setProgress(Math.round(prog));
         },
         (error) => {
-          Alert.alert(t('common.error'), t('upload.uploadFailed'));
+          console.error('Upload error:', error);
+          showAlert(t('common.error'), t('upload.uploadFailed'));
           setUploading(false);
         },
         async () => {
@@ -97,7 +111,7 @@ export default function UploadScreen() {
             category,
           });
 
-          Alert.alert('✅', t('upload.uploadSuccess'));
+          showAlert('✅', t('upload.uploadSuccess'));
           // Reset form
           setVideoUri(null);
           setTitle('');
@@ -108,8 +122,9 @@ export default function UploadScreen() {
           setProgress(0);
         }
       );
-    } catch (error) {
-      Alert.alert(t('common.error'), t('upload.uploadFailed'));
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      showAlert(t('common.error'), error?.message || t('upload.uploadFailed'));
       setUploading(false);
     }
   };

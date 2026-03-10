@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Dimensions } from 
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Colors, Spacing, Typography, Radius } from '@/constants/theme';
+import { Spacing, Typography, Radius } from '@/constants/theme';
 
 const { width, height } = Dimensions.get('window');
 
@@ -15,23 +15,20 @@ export default function WelcomeScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       <LinearGradient
-        colors={['#0F0F1A', '#1A1A3E', '#2D1B69', '#6C5CE7']}
+        colors={['#0B0B1A', '#12122A', '#1A1A3E']}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        end={{ x: 0, y: 1 }}
       >
-        {/* Decorative circles */}
-        <View style={[styles.circle, styles.circle1]} />
-        <View style={[styles.circle, styles.circle2]} />
-        <View style={[styles.circle, styles.circle3]} />
+        {/* Decorative gradient circles */}
+        <View style={[styles.glowCircle, styles.glow1]} />
+        <View style={[styles.glowCircle, styles.glow2]} />
 
         <View style={styles.content}>
-          {/* Logo area */}
+          {/* Logo */}
           <View style={styles.logoContainer}>
-            <View style={styles.logoIcon}>
-              <Text style={styles.logoEmoji}>🎓</Text>
-            </View>
-            <Text style={styles.logoText}>Skill<Text style={styles.logoAccent}>Tok</Text></Text>
+            <Text style={styles.logoText}>QUELIO</Text>
+            <Text style={styles.tagline}>Future, Synced.</Text>
           </View>
 
           {/* Tagline */}
@@ -55,7 +52,14 @@ export default function WelcomeScreen() {
             onPress={() => router.push('/(auth)/signup')}
             activeOpacity={0.8}
           >
-            <Text style={styles.primaryButtonText}>{t('auth.signup')}</Text>
+            <LinearGradient
+              colors={['#4ECDC4', '#6C5CE7']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.primaryGradient}
+            >
+              <Text style={styles.primaryButtonText}>{t('auth.signup')}</Text>
+            </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -76,20 +80,26 @@ const styles = StyleSheet.create({
   gradient: { flex: 1, paddingHorizontal: Spacing.xl },
   content: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   logoContainer: { alignItems: 'center', marginBottom: Spacing.xxxl },
-  logoIcon: {
-    width: 80, height: 80, borderRadius: Radius.xl,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    justifyContent: 'center', alignItems: 'center', marginBottom: Spacing.md,
+  logoText: {
+    fontSize: 52,
+    fontFamily: 'PoppinsBold',
+    color: '#FFFFFF',
+    letterSpacing: 10,
+    textTransform: 'uppercase',
   },
-  logoEmoji: { fontSize: 40 },
-  logoText: { fontSize: Typography.sizes.display, fontWeight: '800', color: '#FFF' },
-  logoAccent: { color: '#A29BFE' },
+  tagline: {
+    fontSize: Typography.sizes.md,
+    fontFamily: 'PoppinsSemiBold',
+    color: '#4ECDC4',
+    letterSpacing: 2,
+    marginTop: Spacing.xs,
+  },
   title: {
     fontSize: Typography.sizes.xxxl, fontWeight: '700', color: '#FFF',
     textAlign: 'center', marginBottom: Spacing.md,
   },
   subtitle: {
-    fontSize: Typography.sizes.lg, color: 'rgba(255,255,255,0.7)',
+    fontSize: Typography.sizes.lg, color: 'rgba(255,255,255,0.6)',
     textAlign: 'center', lineHeight: 24, paddingHorizontal: Spacing.xl,
     marginBottom: Spacing.xxxl,
   },
@@ -98,27 +108,41 @@ const styles = StyleSheet.create({
   },
   pill: {
     paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm,
-    backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: Radius.full,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(78,205,196,0.08)', borderRadius: Radius.full,
+    borderWidth: 1, borderColor: 'rgba(78,205,196,0.2)',
   },
-  pillText: { color: '#FFF', fontSize: Typography.sizes.sm, fontWeight: '600' },
+  pillText: { color: 'rgba(255,255,255,0.85)', fontSize: Typography.sizes.sm, fontWeight: '600' },
   buttonsContainer: {
     paddingBottom: Spacing.xxxxl, gap: Spacing.md,
   },
   primaryButton: {
-    backgroundColor: '#FFF', paddingVertical: Spacing.lg,
-    borderRadius: Radius.xl, alignItems: 'center',
+    borderRadius: Radius.xl, overflow: 'hidden',
   },
-  primaryButtonText: { fontSize: Typography.sizes.lg, fontWeight: '700', color: '#1A1A2E' },
+  primaryGradient: {
+    paddingVertical: Spacing.lg, alignItems: 'center',
+    borderRadius: Radius.xl,
+  },
+  primaryButtonText: {
+    fontSize: Typography.sizes.lg, fontFamily: 'PoppinsSemiBold', color: '#FFF',
+  },
   secondaryButton: {
-    backgroundColor: 'rgba(255,255,255,0.15)', paddingVertical: Spacing.lg,
+    backgroundColor: 'rgba(255,255,255,0.08)', paddingVertical: Spacing.lg,
     borderRadius: Radius.xl, alignItems: 'center',
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)',
   },
-  secondaryButtonText: { fontSize: Typography.sizes.lg, fontWeight: '600', color: '#FFF' },
-  // Decorative circles
-  circle: { position: 'absolute', borderRadius: 9999, opacity: 0.08, backgroundColor: '#A29BFE' },
-  circle1: { width: 300, height: 300, top: -50, right: -80 },
-  circle2: { width: 200, height: 200, bottom: 200, left: -60 },
-  circle3: { width: 150, height: 150, top: height * 0.3, right: -30 },
+  secondaryButtonText: {
+    fontSize: Typography.sizes.lg, fontFamily: 'PoppinsSemiBold', color: '#FFF',
+  },
+  // Decorative glow circles
+  glowCircle: {
+    position: 'absolute', borderRadius: 9999,
+  },
+  glow1: {
+    width: 300, height: 300, top: -80, right: -100,
+    backgroundColor: 'rgba(78,205,196,0.06)',
+  },
+  glow2: {
+    width: 250, height: 250, bottom: 150, left: -80,
+    backgroundColor: 'rgba(108,92,231,0.06)',
+  },
 });

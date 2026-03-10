@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { auth } from './firebase';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = (process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.77:3001/api').trim();
 
 // Create axios instance with default config
 const api = axios.create({
@@ -57,11 +57,14 @@ export const videosAPI = {
   delete: (id: string) => api.delete(`/videos/${id}`),
   getTeacherVideos: (teacherId: string) => api.get(`/videos/teacher/${teacherId}`),
   getSaved: (page = 1) => api.get('/videos/saved', { params: { page } }),
+  getLiked: (page = 1) => api.get('/videos/liked', { params: { page } }),
   toggleLike: (id: string) => api.post(`/videos/${id}/like`),
   toggleSave: (id: string) => api.post(`/videos/${id}/save`),
   getComments: (id: string, page = 1) => api.get(`/videos/${id}/comments`, { params: { page } }),
   addComment: (id: string, text: string, parentCommentId?: string) =>
     api.post(`/videos/${id}/comments`, { text, parentCommentId }),
+  likeComment: (videoId: string, commentId: string) =>
+    api.post(`/videos/${videoId}/comments/${commentId}/like`),
 };
 
 // ============ USERS API ============
@@ -81,6 +84,26 @@ export const categoriesAPI = {
 export const searchAPI = {
   search: (q?: string, category?: string, page = 1) =>
     api.get('/search', { params: { q, category, page } }),
+};
+
+// ============ DONATIONS API ============
+export const donationsAPI = {
+  createCheckoutSession: (teacherId: string, coffeeCount: number, anonymous = false) =>
+    api.post('/donations/create-checkout-session', { teacherId, coffeeCount, anonymous }),
+  getCoffeeCount: (teacherId: string) =>
+    api.get(`/donations/teacher/${teacherId}/count`),
+};
+
+// ============ MESSAGES API ============
+export const messagesAPI = {
+  getConversations: () => api.get('/messages/conversations'),
+  createConversation: (recipientId: string) =>
+    api.post('/messages/conversations', { recipientId }),
+  getMessages: (conversationId: string, page = 1) =>
+    api.get(`/messages/conversations/${conversationId}/messages`, { params: { page } }),
+  sendMessage: (conversationId: string, text: string) =>
+    api.post(`/messages/conversations/${conversationId}/messages`, { text }),
+  getUnreadCount: () => api.get('/messages/unread-count'),
 };
 
 export default api;

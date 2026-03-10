@@ -7,6 +7,7 @@ const commentSchema = new mongoose.Schema(
     text: { type: String, required: true, trim: true, maxlength: 500 },
     parentCommentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment', default: null },
     likesCount: { type: Number, default: 0 },
+    likedBy: [{ type: String }],
   },
   { timestamps: true }
 );

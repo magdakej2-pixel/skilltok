@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "SkillTok",
+    "appName": "QUELIO",
     "loading": "Loading...",
     "error": "Something went wrong",
     "retry": "Try again",
@@ -44,12 +44,13 @@
     "logoutConfirm": "Are you sure you want to log out?"
   },
   "role": {
-    "title": "How will you use SkillTok?",
+    "title": "How will you use QUELIO?",
     "subtitle": "You can always change this later",
     "student": "Student",
     "studentDesc": "Watch and learn from expert videos",
-    "teacher": "Teacher",
+    "teacher": "Expert",
     "teacherDesc": "Share your expertise with short videos",
+    "selectCategory": "Choose your specialty",
     "continue": "Continue"
   },
   "language": {
@@ -75,7 +76,7 @@
     "post": "Post",
     "reply": "Reply",
     "noComments": "No comments yet. Be the first!",
-    "share_message": "Check out this lesson on SkillTok!"
+    "share_message": "Check out this lesson on QUELIO!"
   },
   "upload": {
     "title": "Upload Video",
@@ -99,6 +100,7 @@
     "fillRequired": "Please fill in title and select a category"
   },
   "profile": {
+    "title": "Profile",
     "followers": "Followers",
     "following": "Following",
     "videos": "Videos",
@@ -108,7 +110,13 @@
     "expertise": "Expertise",
     "noVideos": "No videos yet",
     "noSaved": "No saved videos",
-    "settings": "Settings"
+    "liked": "Liked",
+    "myVideos": "My Videos",
+    "noLiked": "No liked videos yet",
+    "settings": "Settings",
+    "changePhoto": "Change photo",
+    "nameChangeHint": "You can change your name once per week",
+    "bioPlaceholder": "Tell students about yourself..."
   },
   "explore": {
     "title": "Explore",
@@ -125,6 +133,65 @@
     "darkMode": "Dark Mode",
     "about": "About",
     "version": "Version"
+  },
+  "settingsPanel": {
+    "title": "Settings & Privacy",
+    "settings": "Settings",
+    "privacy": "Privacy",
+    "activity": "Activity",
+    "account": "Account",
+    "email": "Email",
+    "role": "Role",
+    "memberSince": "Member since",
+    "notifications": "Notifications",
+    "pushNotifications": "Push Notifications",
+    "pushDesc": "Receive push notifications for new content",
+    "emailNotifications": "Email Notifications",
+    "emailDesc": "Receive weekly digest of top videos",
+    "languageRegion": "Language & Region",
+    "appearance": "Appearance",
+    "darkMode": "Dark Mode",
+    "darkModeDesc": "Use dark theme across the app",
+    "autoplay": "Autoplay Videos",
+    "autoplayDesc": "Automatically play videos in feed",
+    "dataUsage": "Data Saver Mode",
+    "dataUsageDesc": "Reduce data usage on mobile networks",
+    "aboutApp": "About QUELIO",
+    "appVersion": "App Version",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "licenses": "Open Source Licenses",
+    "privateAccount": "Private Account",
+    "privateAccountDesc": "Only approved followers can see your content",
+    "allowComments": "Allow Comments",
+    "allowCommentsDesc": "Let others comment on your videos",
+    "allowMessages": "Allow Messages",
+    "allowMessagesDesc": "Let others send you direct messages",
+    "allowDuets": "Allow Duets",
+    "allowDuetsDesc": "Let others create duets with your videos",
+    "blockedUsers": "Blocked Users",
+    "blockedUsersDesc": "Manage your blocked accounts",
+    "noBlockedUsers": "No blocked users",
+    "dataStorage": "Data & Storage",
+    "cacheSize": "Cache Size",
+    "clearCache": "Clear Cache",
+    "downloadOverWifi": "Download Over Wi-Fi Only",
+    "downloadWifiDesc": "Only download content when on Wi-Fi",
+    "watchHistory": "Watch History",
+    "watchHistoryDesc": "Videos you've watched",
+    "likedVideos": "Liked Videos",
+    "likedVideosDesc": "Videos you've liked",
+    "commentedVideos": "Commented Videos",
+    "commentedVideosDesc": "Videos you've commented on",
+    "loginActivity": "Login Activity",
+    "lastLogin": "Last login",
+    "currentSession": "Current session",
+    "accountCreated": "Account created",
+    "videosWatched": "videos watched",
+    "videosLiked": "videos liked",
+    "commentsPosted": "comments posted",
+    "close": "Close",
+    "comingSoon": "Coming soon"
   },
   "analytics": {
     "title": "Analytics",
@@ -144,5 +211,24 @@
     "design": "Design",
     "entrepreneurship": "Entrepreneurship",
     "content-creator": "Content Creator"
+  },
+  "coffee": {
+    "title": "Buy a Coffee ☕",
+    "message": "If you enjoy the content, you can support {{name}} by buying a virtual coffee.",
+    "coffee": "coffee",
+    "buyButton": "Buy",
+    "thanks": "Thank you for your support!",
+    "thanksMessage": "Your coffee helps creators keep making great content.",
+    "secure": "Secure payment via Stripe",
+    "coffees": "Coffees"
+  },
+  "messages": {
+    "title": "Messages",
+    "noConversations": "No conversations yet",
+    "startChat": "Start a conversation from someone's profile",
+    "typeMessage": "Type a message...",
+    "you": "You",
+    "online": "Online",
+    "newMessage": "New message"
   }
 }
