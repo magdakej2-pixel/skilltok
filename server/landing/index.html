@@ -529,7 +529,7 @@
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
     // ===== WAITLIST =====
-    const API = window.location.origin;
+    const API = 'https://quelio-api.onrender.com';
     async function handleSubmit(e) {
       e.preventDefault();
       const email = document.getElementById('emailInput').value.trim();
