@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUELIO Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Poppins', sans-serif; background: #0B0B1A; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+    
+    /* Phone Frame */
+    .phone { width: 375px; height: 812px; border-radius: 44px; background: #12122A; border: 3px solid rgba(255,255,255,0.1); overflow: hidden; position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 60px rgba(78,205,196,0.1); }
+    
+    /* Status Bar */
+    .status-bar { padding: 12px 24px 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; color: #fff; }
+    
+    /* App Header */
+    .app-header { padding: 8px 20px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .app-logo { font-weight: 900; font-size: 18px; letter-spacing: 4px; color: #fff; }
+    .header-icons { display: flex; gap: 16px; font-size: 18px; opacity: 0.6; }
+    
+    /* Content Area */
+    .content { height: 650px; overflow: hidden; position: relative; }
+    
+    /* Screens */
+    .screen { position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0; transition: opacity 0.5s ease; }
+    .screen.active { opacity: 1; }
+    
+    /* Feed Screen */
+    .feed-cards { padding: 12px 16px; }
+    .feed-card { background: rgba(30,30,56,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 16px; margin-bottom: 12px; animation: cardSlideIn 0.5s ease both; }
+    .feed-card:nth-child(2) { animation-delay: 0.15s; }
+    .feed-card:nth-child(3) { animation-delay: 0.3s; }
+    
+    .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .card-avatar { width: 40px; height: 40px; border-radius: 50%; }
+    .card-name { font-size: 13px; font-weight: 700; color: #fff; }
+    .card-meta { font-size: 10px; color: rgba(255,255,255,0.4); }
+    
+    .card-video { width: 100%; height: 180px; border-radius: 14px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .play-btn { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.2); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; font-size: 18px; z-index: 2; cursor: pointer; animation: playPulse 2s ease infinite; }
+    .progress-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: linear-gradient(90deg, #4ECDC4, #6C5CE7); border-radius: 2px; animation: progress 4s linear infinite; }
+    
+    .card-title { font-size: 13px; font-weight: 600; color: #fff; margin: 10px 0 6px; }
+    .card-actions { display: flex; gap: 20px; }
+    .card-actions span { font-size: 11px; color: rgba(255,255,255,0.5); display: flex; align-items: center; gap: 4px; }
+    .heart-beat { animation: heartBeat 3s ease infinite; }
+    
+    /* Floating Hearts */
+    .hearts-container { position: absolute; right: 40px; bottom: 120px; z-index: 5; pointer-events: none; }
+    .float-heart { position: absolute; bottom: 0; font-size: 22px; opacity: 0; }
+    .float-heart:nth-child(1) { animation: floatUp 3s ease-out 1s infinite; right: 0; }
+    .float-heart:nth-child(2) { animation: floatUp 3s ease-out 2s infinite; right: 15px; font-size: 16px; }
+    .float-heart:nth-child(3) { animation: floatUp 3s ease-out 2.5s infinite; right: -8px; font-size: 18px; }
+    
+    /* Notifications */
+    .notification { position: absolute; top: 80px; left: 16px; right: 16px; padding: 14px 18px; border-radius: 16px; background: linear-gradient(135deg, rgba(78,205,196,0.15), rgba(108,92,231,0.15)); border: 1px solid rgba(78,205,196,0.3); backdrop-filter: blur(10px); z-index: 10; display: flex; align-items: center; gap: 12px; animation: slideDown 0.4s ease both, slideUp 0.4s ease 2.5s both; }
+    .notif-icon { font-size: 24px; }
+    .notif-text { font-size: 12px; color: #fff; font-weight: 500; }
+    .notif-text strong { color: #4ECDC4; }
+    
+    /* Tab Bar */
+    .tab-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 72px; background: rgba(18,18,42,0.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-around; padding: 0 12px 12px; }
+    .tab { display: flex; flex-direction: column; align-items: center; gap: 4px; opacity: 0.4; transition: all 0.3s; font-size: 10px; color: #fff; }
+    .tab.active { opacity: 1; }
+    .tab .icon { font-size: 22px; }
+    .tab.active .label { color: #4ECDC4; }
+    .add-tab { width: 44px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #4ECDC4, #6C5CE7); display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; box-shadow: 0 4px 15px rgba(78,205,196,0.3); }
+    
+    /* Text Overlays */
+    .text-overlay { position: absolute; bottom: 100px; left: 0; right: 0; text-align: center; z-index: 20; opacity: 0; animation: textFade 8s ease infinite; }
+    .text-overlay h2 { font-size: 22px; font-weight: 800; color: #fff; text-shadow: 0 2px 20px rgba(0,0,0,0.8); margin-bottom: 8px; }
+    .text-overlay p { font-size: 13px; color: rgba(255,255,255,0.7); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+    .gradient-text { background: linear-gradient(135deg, #4ECDC4, #6C5CE7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    
+    /* Brand Watermark */
+    .watermark { position: absolute; bottom: 80px; right: 20px; font-size: 10px; font-weight: 800; letter-spacing: 3px; color: rgba(255,255,255,0.15); z-index: 20; }
+    
+    /* Animations */
+    @keyframes cardSlideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes playPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+    @keyframes progress { 0% { width: 0; } 100% { width: 100%; } }
+    @keyframes heartBeat { 0%,80%,100% { transform: scale(1); } 85% { transform: scale(1.3); color: #FF6B6B; } }
+    @keyframes floatUp {
+      0% { opacity: 0; transform: translateY(0) scale(0.5); }
+      15% { opacity: 1; transform: translateY(-30px) scale(1); }
+      100% { opacity: 0; transform: translateY(-120px) scale(0.5) rotate(-20deg); }
+    }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
+    @keyframes textFade {
+      0%,10% { opacity: 0; transform: translateY(10px); }
+      15%,40% { opacity: 1; transform: translateY(0); }
+      45%,100% { opacity: 0; transform: translateY(-10px); }
+    }
+    
+    /* Background Glow */
+    .bg-glow { position: fixed; width: 400px; height: 400px; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: -1; }
+    .glow-1 { top: -100px; right: -100px; background: #4ECDC4; opacity: 0.08; }
+    .glow-2 { bottom: -100px; left: -100px; background: #6C5CE7; opacity: 0.08; }
+  </style>
+</head>
+<body>
+  <div class="bg-glow glow-1"></div>
+  <div class="bg-glow glow-2"></div>
+  
+  <div class="phone">
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>⚡ 87%</span>
+    </div>
+    
+    <!-- App Header -->
+    <div class="app-header">
+      <div class="app-logo">QUELIO</div>
+      <div class="header-icons">
+        <span>🔍</span>
+        <span>🔔</span>
+      </div>
+    </div>
+    
+    <!-- Notification -->
+    <div class="notification">
+      <span class="notif-icon">🎉</span>
+      <div class="notif-text"><strong>New lesson</strong> by @Dr.Sarah — "AI Prompts for Research" (45s)</div>
+    </div>
+    
+    <!-- Feed -->
+    <div class="content">
+      <div class="screen active">
+        <div class="feed-cards">
+          <!-- Card 1 -->
+          <div class="feed-card">
+            <div class="card-header">
+              <div class="card-avatar" style="background: linear-gradient(135deg, #4ECDC4, #6C5CE7);"></div>
+              <div>
+                <div class="card-name">@Dr. Sarah AI</div>
+                <div class="card-meta">🤖 AI · 45 sec · 2h ago</div>
+              </div>
+            </div>
+            <div class="card-video" style="background: linear-gradient(135deg, #1a2a4a, #2a1a4a);">
+              <div class="play-btn">▶</div>
+              <div class="progress-bar"></div>
+            </div>
+            <div class="card-title">How to use ChatGPT for research 🚀</div>
+            <div class="card-actions">
+              <span class="heart-beat">❤️ 1.2k</span>
+              <span>💬 89</span>
+              <span>🔖 320</span>
+              <span>↗️ 45</span>
+            </div>
+          </div>
+          
+          <!-- Card 2 -->
+          <div class="feed-card">
+            <div class="card-header">
+              <div class="card-avatar" style="background: linear-gradient(135deg, #6C5CE7, #FF6B6B);"></div>
+              <div>
+                <div class="card-name">@Mike Growth</div>
+                <div class="card-meta">📈 Marketing · 58 sec · 5h ago</div>
+              </div>
+            </div>
+            <div class="card-video" style="background: linear-gradient(135deg, #2a1a3a, #1a2a3a);">
+              <div class="play-btn">▶</div>
+              <div class="progress-bar" style="animation-delay: 1s;"></div>
+            </div>
+            <div class="card-title">5 Instagram hacks for 2026 📱</div>
+            <div class="card-actions">
+              <span class="heart-beat" style="animation-delay: 1.5s;">❤️ 890</span>
+              <span>💬 156</span>
+              <span>🔖 543</span>
+              <span>↗️ 78</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Floating Hearts -->
+      <div class="hearts-container">
+        <div class="float-heart">❤️</div>
+        <div class="float-heart">❤️</div>
+        <div class="float-heart">❤️</div>
+      </div>
+    </div>
+    
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab active">
+        <span class="icon">🏠</span>
+        <span class="label">Home</span>
+      </div>
+      <div class="tab">
+        <span class="icon">🔍</span>
+        <span class="label">Discover</span>
+      </div>
+      <div class="add-tab">+</div>
+      <div class="tab">
+        <span class="icon">💬</span>
+        <span class="label">Chat</span>
+      </div>
+      <div class="tab">
+        <span class="icon">👤</span>
+        <span class="label">Profile</span>
+      </div>
+    </div>
+    
+    <div class="watermark">QUELIO</div>
+  </div>
+</body>
+</html>
