@@ -19,7 +19,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Serve landing page BEFORE helmet (no CSP restrictions for static HTML)
-app.use('/landing', express.static(path.join(__dirname, '..', 'landing')));
+app.use('/landing', express.static(path.join(__dirname, 'landing')));
 
 // Middleware
 app.use(helmet());
