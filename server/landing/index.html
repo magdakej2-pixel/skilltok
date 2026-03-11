@@ -123,7 +123,7 @@
 
     /* ========== 5. CATEGORIES ========== */
     .categories { text-align: center; }
-    .cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-top: 48px; }
+    .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; }
     .cat-card { padding: 28px 16px; border-radius: 16px; background: rgba(30,30,56,0.5); border: 1px solid var(--border); text-align: center; transition: transform .3s, border-color .3s; cursor: default; }
     .cat-card:hover { transform: translateY(-3px); border-color: rgba(78,205,196,0.3); }
     .cat-card .emoji { font-size: 32px; margin-bottom: 12px; }
@@ -315,7 +315,7 @@
   <section class="problem reveal">
     <div class="section-label" data-i18n="problemLabel">The Problem</div>
     <h2 class="section-title" data-i18n="problemTitle">Learning today is <span class="gradient">broken.</span></h2>
-    <p class="section-desc" style="margin: 0 auto 0;" data-i18n="problemDesc">Most online courses are long, boring and hard to finish. People want fast, practical knowledge they can apply immediately.</p>
+    <p class="section-desc" style="margin: 0 auto 0;" data-i18n="problemDesc">Most online courses are long, boring and hard to finish.<br>People want fast, practical knowledge they can apply immediately.</p>
     <div class="problem-points">
       <div class="problem-point"><span class="x">✕</span><span data-i18n="p1">10-hour courses nobody finishes</span></div>
       <div class="problem-point"><span class="x">✕</span><span data-i18n="p2">Too much theory</span></div>
@@ -439,7 +439,7 @@
     const T = {
       en: {
         badge:'Beta Coming Soon', heroTitle:'Learn future skills in 60-second videos.', heroDesc:'A new learning platform where experts share short video lessons about AI, business, marketing and more.', heroCta1:'🚀 Join the Beta', heroCta2:'📩 Get Early Access',
-        problemLabel:'The Problem', problemTitle:'Learning today is <span class="gradient">broken.</span>', problemDesc:'Most online courses are long, boring and hard to finish. People want fast, practical knowledge they can apply immediately.', p1:'10-hour courses nobody finishes', p2:'Too much theory', p3:'Not enough practical skills',
+        problemLabel:'The Problem', problemTitle:'Learning today is <span class="gradient">broken.</span>', problemDesc:'Most online courses are long, boring and hard to finish.<br>People want fast, practical knowledge they can apply immediately.', p1:'10-hour courses nobody finishes', p2:'Too much theory', p3:'Not enough practical skills',
         solutionLabel:'The Solution', solutionTitle:'Meet the <span class="gradient">future of learning.</span>', solutionDesc:'Learn new skills through short, engaging videos from real experts.', s1:'30-90 second lessons', s2:'Scroll and learn like social media', s3:'Real world skills you can use immediately',
         howLabel:'How It Works', howTitle:'Three simple steps.', h1Title:'Discover', h1Desc:'Scroll through short video lessons from experts across the world.', h2Title:'Learn', h2Desc:'Watch quick tutorials packed with practical knowledge.', h3Title:'Apply', h3Desc:'Use the skills in real life — immediately after watching.',
         catLabel:'Categories', catTitle:'Learn the skills that <span class="gradient">matter.</span>', catProg:'Programming', catProd:'Productivity',
@@ -452,7 +452,7 @@
       },
       pl: {
         badge:'Beta Już Wkrótce', heroTitle:'Ucz się przyszłościowych umiejętności w 60 sekund.', heroDesc:'Nowa platforma edukacyjna, na której eksperci dzielą się wiedzą w krótkich filmach o AI, biznesie, marketingu i nie tylko.', heroCta1:'🚀 Dołącz do Bety', heroCta2:'📩 Uzyskaj wczesny dostęp',
-        problemLabel:'Problem', problemTitle:'Nauka dzisiaj jest <span class="gradient">zepsuta.</span>', problemDesc:'Większość kursów online jest długa, nudna i trudna do ukończenia. Ludzie chcą szybkiej, praktycznej wiedzy.', p1:'10-godzinne kursy, których nikt nie kończy', p2:'Za dużo teorii', p3:'Za mało praktycznych umiejętności',
+        problemLabel:'Problem', problemTitle:'Nauka dzisiaj jest <span class="gradient">zepsuta.</span>', problemDesc:'Większość kursów online jest długa, nudna i trudna do ukończenia.<br>Ludzie chcą szybkiej, praktycznej wiedzy.', p1:'10-godzinne kursy, których nikt nie kończy', p2:'Za dużo teorii', p3:'Za mało praktycznych umiejętności',
         solutionLabel:'Rozwiązanie', solutionTitle:'Poznaj <span class="gradient">przyszłość nauki.</span>', solutionDesc:'Ucz się nowych umiejętności przez krótkie, angażujące filmy od prawdziwych ekspertów.', s1:'Lekcje po 30-90 sekund', s2:'Przewijaj i ucz się jak w social mediach', s3:'Realne umiejętności do natychmiastowego zastosowania',
         howLabel:'Jak to działa', howTitle:'Trzy proste kroki.', h1Title:'Odkrywaj', h1Desc:'Przewijaj krótkie lekcje wideo od ekspertów z całego świata.', h2Title:'Ucz się', h2Desc:'Oglądaj szybkie tutoriale pełne praktycznej wiedzy.', h3Title:'Stosuj', h3Desc:'Wykorzystuj umiejętności w życiu — od razu po obejrzeniu.',
         catLabel:'Kategorie', catTitle:'Ucz się umiejętności, które <span class="gradient">mają znaczenie.</span>', catProg:'Programowanie', catProd:'Produktywność',
