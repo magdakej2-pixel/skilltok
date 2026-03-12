@@ -13,7 +13,7 @@ const { body, validationResult } = require('express-validator');
 // POST /api/auth/register — Create user in MongoDB after Firebase registration
 router.post(
   '/register',
-  (req, res, next) => { console.log('📥 REGISTER request received, auth header:', req.headers.authorization ? 'present' : 'MISSING'); next(); },
+
   authenticate,
   [
     body('displayName').trim().notEmpty().withMessage('Display name is required'),

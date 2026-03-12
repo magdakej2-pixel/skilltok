@@ -30,13 +30,46 @@ app.use('/fonts', express.static(path.join(webappDir, 'fonts'), {
 app.use(express.static(webappDir));
 
 // ── API Middleware ──
+const rateLimit = require('express-rate-limit');
+
+// Rate limiters
+const authLimiter = rateLimit({ windowMs: 60 * 1000, max: 10, message: { error: { message: 'Too many auth requests, try again later' } } });
+const writeLimiter = rateLimit({ windowMs: 60 * 1000, max: 30, message: { error: { message: 'Too many requests, slow down' } } });
+const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 100, message: { error: { message: 'Rate limit exceeded' } } });
+
 app.use('/api', helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
 }));
-app.use(cors());
+
+// Restrict CORS to known origins
+const allowedOrigins = [
+  'https://quelio-api.onrender.com',
+  'http://localhost:8081',
+  'http://localhost:8082',
+  'http://localhost:19006',
+];
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, server-to-server)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  credentials: true,
+}));
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Apply rate limiters to API routes
+app.use('/api/auth', authLimiter);
+app.use('/api/videos', writeLimiter);
+app.use('/api/messages', writeLimiter);
+app.use('/api/donations', writeLimiter);
+app.use('/api', generalLimiter);
 
 // Routes
 app.use('/api/auth', authRoutes);

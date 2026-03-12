@@ -4,9 +4,10 @@ const User = require('../models/User');
 const Video = require('../models/Video');
 const Follow = require('../models/Follow');
 const { authenticate, requireUser } = require('../middleware/auth');
+const { validateObjectId } = require('../middleware/validate');
 
 // GET /api/users/:id — Get user profile
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateObjectId(), async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-firebaseUid');
     if (!user) return res.status(404).json({ error: { message: 'User not found' } });
@@ -17,7 +18,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/users/:id/follow — Toggle follow
-router.post('/:id/follow', authenticate, requireUser, async (req, res) => {
+router.post('/:id/follow', authenticate, requireUser, validateObjectId(), async (req, res) => {
   try {
     const targetId = req.params.id;
     if (targetId === req.user._id.toString()) {

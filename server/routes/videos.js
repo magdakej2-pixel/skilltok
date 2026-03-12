@@ -6,6 +6,7 @@ const SavedVideo = require('../models/SavedVideo');
 const Comment = require('../models/Comment');
 const User = require('../models/User');
 const { authenticate, requireUser, requireTeacher } = require('../middleware/auth');
+const { validateObjectId } = require('../middleware/validate');
 const { body, validationResult } = require('express-validator');
 
 // GET /api/videos/feed — Paginated video feed
@@ -78,7 +79,7 @@ router.get('/liked', authenticate, requireUser, async (req, res) => {
 });
 
 // GET /api/videos/teacher/:id — Teacher's uploaded videos
-router.get('/teacher/:id', async (req, res) => {
+router.get('/teacher/:id', validateObjectId(), async (req, res) => {
   try {
     const videos = await Video.find({ teacherId: req.params.id, status: 'active' })
       .sort({ createdAt: -1 });
@@ -89,7 +90,7 @@ router.get('/teacher/:id', async (req, res) => {
 });
 
 // GET /api/videos/:id — Single video
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateObjectId(), async (req, res) => {
   try {
     const video = await Video.findById(req.params.id)
       .populate('teacherId', 'displayName avatarUrl role expertiseCategory isVerified');
@@ -141,7 +142,7 @@ router.post(
 );
 
 // PUT /api/videos/:id — Update video (owner only)
-router.put('/:id', authenticate, requireTeacher, async (req, res) => {
+router.put('/:id', authenticate, requireTeacher, validateObjectId(), async (req, res) => {
   try {
     const video = await Video.findById(req.params.id);
     if (!video) return res.status(404).json({ error: { message: 'Video not found' } });
@@ -163,7 +164,7 @@ router.put('/:id', authenticate, requireTeacher, async (req, res) => {
 });
 
 // DELETE /api/videos/:id — Soft delete video (owner only)
-router.delete('/:id', authenticate, requireTeacher, async (req, res) => {
+router.delete('/:id', authenticate, requireTeacher, validateObjectId(), async (req, res) => {
   try {
     const video = await Video.findById(req.params.id);
     if (!video) return res.status(404).json({ error: { message: 'Video not found' } });
@@ -180,7 +181,7 @@ router.delete('/:id', authenticate, requireTeacher, async (req, res) => {
 });
 
 // POST /api/videos/:id/like — Toggle like
-router.post('/:id/like', authenticate, requireUser, async (req, res) => {
+router.post('/:id/like', authenticate, requireUser, validateObjectId(), async (req, res) => {
   try {
     const existing = await Like.findOne({ userId: req.user._id, videoId: req.params.id });
 
@@ -199,7 +200,7 @@ router.post('/:id/like', authenticate, requireUser, async (req, res) => {
 });
 
 // POST /api/videos/:id/save — Toggle save
-router.post('/:id/save', authenticate, requireUser, async (req, res) => {
+router.post('/:id/save', authenticate, requireUser, validateObjectId(), async (req, res) => {
   try {
     const existing = await SavedVideo.findOne({ userId: req.user._id, videoId: req.params.id });
 
@@ -218,7 +219,7 @@ router.post('/:id/save', authenticate, requireUser, async (req, res) => {
 });
 
 // GET /api/videos/:id/comments — Get comments for a video
-router.get('/:id/comments', async (req, res) => {
+router.get('/:id/comments', validateObjectId(), async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -277,7 +278,7 @@ router.post(
 // POST /api/videos/:id/comments/:commentId/like — Toggle like on a comment
 router.post('/:id/comments/:commentId/like', authenticate, requireUser, async (req, res) => {
   try {
-    console.log('Comment like request:', req.params.commentId, 'by user:', req.user?._id);
+    // Removed debug log for security
     const comment = await Comment.findById(req.params.commentId);
     if (!comment) return res.status(404).json({ error: { message: 'Comment not found' } });
 

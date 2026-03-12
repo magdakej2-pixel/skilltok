@@ -24,8 +24,12 @@ router.post('/create-checkout-session', authenticate, requireUser, async (req, r
 
     const amount = coffeeCount * COFFEE_PRICE_PENCE;
 
-    // If Stripe not configured, simulate for development
+    // Block donations if Stripe is not configured in production
     if (!stripe) {
+      if (process.env.NODE_ENV === 'production') {
+        return res.status(503).json({ error: { message: 'Payment service unavailable' } });
+      }
+      // Dev-mode simulation only in non-production
       const donation = await Donation.create({
         userId: anonymous ? null : req.user._id,
         teacherId,
@@ -36,7 +40,6 @@ router.post('/create-checkout-session', authenticate, requireUser, async (req, r
         stripeSessionId: 'dev_' + Date.now(),
         anonymous: !!anonymous,
       });
-      // Update teacher coffee count
       await User.findByIdAndUpdate(teacherId, { $inc: { coffeesReceived: coffeeCount } });
       return res.json({ success: true, donation, devMode: true });
     }
@@ -56,8 +59,8 @@ router.post('/create-checkout-session', authenticate, requireUser, async (req, r
         quantity: coffeeCount,
       }],
       mode: 'payment',
-      success_url: `${req.headers.origin || 'http://localhost:8082'}/feed?coffee=success`,
-      cancel_url: `${req.headers.origin || 'http://localhost:8082'}/feed?coffee=cancel`,
+      success_url: `${process.env.APP_URL || 'https://quelio-api.onrender.com'}/feed?coffee=success`,
+      cancel_url: `${process.env.APP_URL || 'https://quelio-api.onrender.com'}/feed?coffee=cancel`,
       metadata: {
         userId: anonymous ? 'anonymous' : req.user._id.toString(),
         teacherId: teacherId,
