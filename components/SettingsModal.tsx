@@ -281,9 +281,8 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
   );
 
   // ─── Stats card helper ───
-  const StatCard = ({ icon, value, label }: { icon: string; value: number | string; label: string }) => (
+  const StatCard = ({ value, label }: { value: number | string; label: string }) => (
     <View style={[s.statCard, { backgroundColor: colors.surfaceElevated }]}>
-      <Text style={{ fontSize: 24 }}>{icon}</Text>
       <Text style={[s.statValue, { color: colors.text }]}>{value}</Text>
       <Text style={[s.statLabel, { color: colors.textSecondary }]}>{label}</Text>
     </View>
@@ -429,10 +428,10 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
       {/* Activity overview */}
       <SectionHeader title={t('settingsPanel.activity')} />
       <View style={s.statsGrid}>
-        <StatCard icon="👁" value={user?.videosCount || 0} label={t('settingsPanel.videosWatched')} />
-        <StatCard icon="❤️" value={likedCount} label={t('settingsPanel.videosLiked')} />
-        <StatCard icon="💬" value={user?.followingCount || 0} label={t('profile.following')} />
-        <StatCard icon="🔖" value={savedCount} label={t('profile.saved')} />
+        <StatCard value={user?.videosCount || 0} label={t('settingsPanel.videosWatched')} />
+        <StatCard value={likedCount} label={t('settingsPanel.videosLiked')} />
+        <StatCard value={user?.followingCount || 0} label={t('profile.following')} />
+        <StatCard value={savedCount} label={t('profile.saved')} />
       </View>
 
       {/* Content activity */}
