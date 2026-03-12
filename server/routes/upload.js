@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
-const { authMiddleware } = require('../middleware/auth');
+const { authenticate } = require('../middleware/auth');
 
 // Configure multer for memory storage (temp buffer)
 const upload = multer({
@@ -27,7 +27,7 @@ cloudinary.config({
 });
 
 // POST /api/upload/video — upload a video file
-router.post('/video', authMiddleware, upload.single('video'), async (req, res) => {
+router.post('/video', authenticate, upload.single('video'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No video file provided' });
@@ -66,7 +66,7 @@ router.post('/video', authMiddleware, upload.single('video'), async (req, res) =
 });
 
 // POST /api/upload/image — upload an image (profile pic, etc.)
-router.post('/image', authMiddleware, upload.single('image'), async (req, res) => {
+router.post('/image', authenticate, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No image file provided' });
