@@ -25,6 +25,7 @@ export default function UploadScreen() {
   const { user } = useAuthStore();
 
   const [videoUri, setVideoUri] = useState<string | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null); // Web only: raw File object
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
@@ -45,6 +46,27 @@ export default function UploadScreen() {
   };
 
   const pickVideo = async () => {
+    if (Platform.OS === 'web') {
+      // Use native HTML file input on web
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'video/*';
+      input.onchange = (e: any) => {
+        const file = e.target?.files?.[0];
+        if (file) {
+          if (file.size > 50 * 1024 * 1024) {
+            showAlert(t('common.error'), t('upload.maxSize'));
+            return;
+          }
+          setVideoFile(file);
+          setVideoUri(URL.createObjectURL(file));
+        }
+      };
+      input.click();
+      return;
+    }
+
+    // Native: use expo-image-picker
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
       allowsEditing: true,
@@ -54,11 +76,11 @@ export default function UploadScreen() {
 
     if (!result.canceled && result.assets[0]) {
       const asset = result.assets[0];
-      // Check file size (50MB max)
       if (asset.fileSize && asset.fileSize > 50 * 1024 * 1024) {
         showAlert(t('common.error'), t('upload.maxSize'));
         return;
       }
+      setVideoFile(null);
       setVideoUri(asset.uri);
     }
   };
@@ -73,21 +95,28 @@ export default function UploadScreen() {
     setProgress(0);
 
     try {
-      // Get blob from URI — XMLHttpRequest works on both web and native
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.onload = () => resolve(xhr.response);
-        xhr.onerror = () => reject(new Error('Failed to load video file'));
-        xhr.responseType = 'blob';
-        xhr.open('GET', videoUri, true);
-        xhr.send();
-      });
+      let uploadBlob: Blob | File;
+
+      if (Platform.OS === 'web' && videoFile) {
+        // Web: use File object directly — no XHR needed
+        uploadBlob = videoFile;
+      } else {
+        // Native: convert URI to blob via XHR
+        uploadBlob = await new Promise<Blob>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.onload = () => resolve(xhr.response);
+          xhr.onerror = () => reject(new Error('Failed to load video file'));
+          xhr.responseType = 'blob';
+          xhr.open('GET', videoUri, true);
+          xhr.send();
+        });
+      }
 
       // Upload video to Firebase Storage
       const filename = `videos/${user?._id}/${Date.now()}.mp4`;
       const storageRef = ref(storage, filename);
 
-      const uploadTask = uploadBytesResumable(storageRef, blob);
+      const uploadTask = uploadBytesResumable(storageRef, uploadBlob);
 
       uploadTask.on('state_changed',
         (snapshot) => {
@@ -114,6 +143,7 @@ export default function UploadScreen() {
           showAlert('✅', t('upload.uploadSuccess'));
           // Reset form
           setVideoUri(null);
+          setVideoFile(null);
           setTitle('');
           setDescription('');
           setTags('');
