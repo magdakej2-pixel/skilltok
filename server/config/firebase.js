@@ -1,15 +1,32 @@
 const admin = require('firebase-admin');
 
+// Parse Firebase private key from env — handles multiple formats
+function parsePrivateKey(raw) {
+  if (!raw) return undefined;
+  let key = raw;
+  // Strip surrounding double quotes (Render sometimes wraps values)
+  if (key.startsWith('"') && key.endsWith('"')) {
+    key = key.slice(1, -1);
+  }
+  // Try JSON.parse for JSON-encoded strings (e.g. "-----BEGIN...\\n...-----END...\\n")
+  try {
+    key = JSON.parse(`"${key}"`);
+  } catch {
+    // fallback: replace literal \n with real newlines
+    key = key.replace(/\\n/g, '\n');
+  }
+  return key;
+}
+
 // Initialize Firebase Admin SDK
-// In production, use service account credentials from environment variables
-// In development, Firebase auth middleware will be bypassed if not configured
 try {
   if (!admin.apps.length && process.env.FIREBASE_PROJECT_ID) {
+    const privateKey = parsePrivateKey(process.env.FIREBASE_PRIVATE_KEY);
     admin.initializeApp({
       credential: admin.credential.cert({
         projectId: process.env.FIREBASE_PROJECT_ID,
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        privateKey,
       }),
     });
     console.log('✅ Firebase Admin initialized');
