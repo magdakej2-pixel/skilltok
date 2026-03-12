@@ -21,6 +21,13 @@ const PORT = process.env.PORT || 3001;
 // Serve landing page BEFORE helmet (no CSP restrictions for static HTML)
 app.use('/landing', express.static(path.join(__dirname, 'landing')));
 
+// Serve web app (beta) BEFORE helmet
+app.use('/app', express.static(path.join(__dirname, 'webapp')));
+// SPA fallback: serve index.html for any /app/* route not matched as a file
+app.get('/app/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'webapp', 'index.html'));
+});
+
 // Middleware
 app.use(helmet());
 app.use(cors());

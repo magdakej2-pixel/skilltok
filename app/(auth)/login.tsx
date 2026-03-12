@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/services/firebase';
 import { Colors, Spacing, Typography, Radius } from '@/constants/theme';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useAuthStore } from '@/store';
 import { authAPI } from '@/services/api';
@@ -86,88 +87,107 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: colors.background }]}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-        {/* Back button */}
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={[styles.backText, { color: colors.primary }]}>← {t('common.back')}</Text>
-        </TouchableOpacity>
+      <LinearGradient
+        colors={['#0A0A12', '#111118', '#1A1A24']}
+        style={styles.gradientBg}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+      >
+        {/* Decorative glow circles */}
+        <View style={[styles.glowCircle, styles.glow1]} />
+        <View style={[styles.glowCircle, styles.glow2]} />
 
-        <Text style={[styles.title, { color: colors.text }]}>{t('auth.loginTitle')}</Text>
-        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          {t('common.appName')}
-        </Text>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+          {/* Back button */}
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Text style={[styles.backText, { color: colors.primary }]}>← {t('common.back')}</Text>
+          </TouchableOpacity>
 
-        {/* Email */}
-        <View style={styles.inputGroup}>
-          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.email')}</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: errors.email ? colors.error : colors.border }]}
-            placeholder={t('auth.email')}
-            placeholderTextColor={colors.textTertiary}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-        </View>
+          <Text style={[styles.title, { color: '#F8F9FA' }]}>{t('auth.loginTitle')}</Text>
+          <Text style={[styles.subtitle, { color: 'rgba(255,255,255,0.6)' }]}>
+            {t('common.appName')}
+          </Text>
 
-        {/* Password */}
-        <View style={styles.inputGroup}>
-          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.password')}</Text>
-          <View style={{ position: 'relative' as const }}>
+          {/* Email */}
+          <View style={styles.inputGroup}>
+            <Text style={[styles.label, { color: 'rgba(255,255,255,0.6)' }]}>{t('auth.email')}</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: errors.password ? colors.error : colors.border, paddingRight: 48 }]}
-              placeholder={t('auth.password')}
-              placeholderTextColor={colors.textTertiary}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
+              style={[styles.input, { backgroundColor: '#16161F', color: '#F8F9FA', borderColor: errors.email ? colors.error : 'rgba(255,255,255,0.08)' }]}
+              placeholder={t('auth.email')}
+              placeholderTextColor="rgba(255,255,255,0.35)"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
             />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={{ position: 'absolute' as const, right: 14, top: 0, bottom: 0, justifyContent: 'center' as const }}
+            {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+          </View>
+
+          {/* Password */}
+          <View style={styles.inputGroup}>
+            <Text style={[styles.label, { color: 'rgba(255,255,255,0.6)' }]}>{t('auth.password')}</Text>
+            <View style={{ position: 'relative' as const }}>
+              <TextInput
+                style={[styles.input, { backgroundColor: '#16161F', color: '#F8F9FA', borderColor: errors.password ? colors.error : 'rgba(255,255,255,0.08)', paddingRight: 48 }]}
+                placeholder={t('auth.password')}
+                placeholderTextColor="rgba(255,255,255,0.35)"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute' as const, right: 14, top: 0, bottom: 0, justifyContent: 'center' as const }}
+              >
+                <Ionicons name={showPassword ? 'eye' : 'eye-off'} size={22} color="rgba(255,255,255,0.6)" />
+              </TouchableOpacity>
+            </View>
+            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+          </View>
+
+          {/* Login button */}
+          <TouchableOpacity
+            style={[styles.button, { opacity: loading ? 0.7 : 1 }]}
+            onPress={handleLogin}
+            disabled={loading}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={['#FF2D78', '#FF6CB5']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.buttonGradient}
             >
-              <Ionicons name={showPassword ? 'eye' : 'eye-off'} size={22} color={colors.textSecondary} />
+              {loading ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <Text style={styles.buttonText}>{t('auth.login')}</Text>
+              )}
+            </LinearGradient>
+          </TouchableOpacity>
+
+          {/* Switch to signup */}
+          <View style={styles.switchContainer}>
+            <Text style={[styles.switchText, { color: 'rgba(255,255,255,0.6)' }]}>
+              {t('auth.noAccount')}{' '}
+            </Text>
+            <TouchableOpacity onPress={() => router.replace('/(auth)/signup')}>
+              <Text style={[styles.switchLink, { color: '#FF2D78' }]}>{t('auth.signup')}</Text>
             </TouchableOpacity>
           </View>
-          {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-        </View>
-
-        {/* Login button */}
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: colors.primary, opacity: loading ? 0.7 : 1 }]}
-          onPress={handleLogin}
-          disabled={loading}
-          activeOpacity={0.8}
-        >
-          {loading ? (
-            <ActivityIndicator color="#FFF" />
-          ) : (
-            <Text style={styles.buttonText}>{t('auth.login')}</Text>
-          )}
-        </TouchableOpacity>
-
-        {/* Switch to signup */}
-        <View style={styles.switchContainer}>
-          <Text style={[styles.switchText, { color: colors.textSecondary }]}>
-            {t('auth.noAccount')}{' '}
-          </Text>
-          <TouchableOpacity onPress={() => router.replace('/(auth)/signup')}>
-            <Text style={[styles.switchLink, { color: colors.primary }]}>{t('auth.signup')}</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </LinearGradient>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  gradientBg: { flex: 1 },
   scrollContent: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: 60 },
   backButton: { marginBottom: Spacing.xl },
   backText: { fontSize: Typography.sizes.lg, fontWeight: '600' },
@@ -181,11 +201,16 @@ const styles = StyleSheet.create({
   },
   errorText: { color: '#FF6B6B', fontSize: Typography.sizes.sm, marginTop: Spacing.xs },
   button: {
-    paddingVertical: Spacing.lg, borderRadius: Radius.xl,
-    alignItems: 'center', marginTop: Spacing.md,
+    borderRadius: Radius.xl, overflow: 'hidden' as const, marginTop: Spacing.md,
+  },
+  buttonGradient: {
+    paddingVertical: Spacing.lg, alignItems: 'center' as const, borderRadius: Radius.xl,
   },
   buttonText: { color: '#FFF', fontSize: Typography.sizes.lg, fontWeight: '700' },
   switchContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: Spacing.xxl },
   switchText: { fontSize: Typography.sizes.md },
   switchLink: { fontSize: Typography.sizes.md, fontWeight: '700' },
+  glowCircle: { position: 'absolute' as const, borderRadius: 9999 },
+  glow1: { width: 600, height: 600, top: -200, right: -200, backgroundColor: 'rgba(255,45,120,0.1)' },
+  glow2: { width: 500, height: 500, bottom: 0, left: -150, backgroundColor: 'rgba(255,108,181,0.08)' },
 });

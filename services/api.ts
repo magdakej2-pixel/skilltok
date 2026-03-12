@@ -41,8 +41,9 @@ export const authAPI = {
   register: (data: { displayName: string; role: string; language?: string; expertiseCategory?: string }) =>
     api.post('/auth/register', data),
   login: () => api.post('/auth/login'),
-  updateProfile: (data: Partial<{ displayName: string; bio: string; avatarUrl: string; expertiseCategory: string; language: string }>) =>
+  updateProfile: (data: Partial<{ displayName: string; bio: string; avatarUrl: string; expertiseCategory: string; language: string; settings: Record<string, boolean> }>) =>
     api.put('/auth/profile', data),
+  deleteAccount: () => api.delete('/auth/account'),
 };
 
 // ============ VIDEOS API ============

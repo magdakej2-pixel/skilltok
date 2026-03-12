@@ -143,7 +143,7 @@ export default function TeacherProfileModal({ visible, teacherId, onClose, highl
                 <Text style={[{ fontSize: 22, fontWeight: '800', marginTop: Spacing.md, color: colors.text }]}>
                   {teacher.displayName}
                 </Text>
-                <View style={[styles.roleBadge, { backgroundColor: teacher.role === 'teacher' ? '#6C5CE7' : '#00CEC9' }]}>
+                <View style={[styles.roleBadge, { backgroundColor: teacher.role === 'teacher' ? '#9B59B6' : '#FF2D78' }]}>
                   <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>
                     {teacher.role === 'teacher'
                       ? (teacher.gender === 'female' ? t('role.teacherFemale', t('role.teacher')) : t('role.teacher'))

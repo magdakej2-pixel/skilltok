@@ -15,7 +15,7 @@ export default function WelcomeScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       <LinearGradient
-        colors={['#0B0B1A', '#12122A', '#1A1A3E']}
+        colors={['#0A0A12', '#111118', '#1A1A24']}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
@@ -53,7 +53,7 @@ export default function WelcomeScreen() {
             activeOpacity={0.8}
           >
             <LinearGradient
-              colors={['#4ECDC4', '#6C5CE7']}
+              colors={['#FF2D78', '#FF6CB5']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.primaryGradient}
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   tagline: {
     fontSize: Typography.sizes.md,
     fontFamily: 'PoppinsSemiBold',
-    color: '#4ECDC4',
+    color: '#FF2D78',
     letterSpacing: 2,
     marginTop: Spacing.xs,
   },
@@ -138,11 +138,11 @@ const styles = StyleSheet.create({
     position: 'absolute', borderRadius: 9999,
   },
   glow1: {
-    width: 300, height: 300, top: -80, right: -100,
-    backgroundColor: 'rgba(78,205,196,0.06)',
+    width: 600, height: 600, top: -200, right: -200,
+    backgroundColor: 'rgba(255,45,120,0.1)',
   },
   glow2: {
-    width: 250, height: 250, bottom: 150, left: -80,
-    backgroundColor: 'rgba(108,92,231,0.06)',
+    width: 500, height: 500, bottom: 0, left: -150,
+    backgroundColor: 'rgba(255,108,181,0.08)',
   },
 });

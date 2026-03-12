@@ -16,6 +16,18 @@ const userSchema = new mongoose.Schema(
     followersCount: { type: Number, default: 0 },
     followingCount: { type: Number, default: 0 },
     videosCount: { type: Number, default: 0 },
+    // Settings & Privacy
+    settings: {
+      pushNotifications: { type: Boolean, default: true },
+      emailNotifications: { type: Boolean, default: false },
+      autoplay: { type: Boolean, default: true },
+      dataSaver: { type: Boolean, default: false },
+      privateAccount: { type: Boolean, default: false },
+      allowComments: { type: Boolean, default: true },
+      allowMessages: { type: Boolean, default: true },
+      allowDuets: { type: Boolean, default: true },
+      downloadWifiOnly: { type: Boolean, default: false },
+    },
     // Monetization (prepared, disabled for MVP)
     monetizationTier: { type: String, default: null, enum: [null, 'free', 'premium', 'pro'] },
     isVerified: { type: Boolean, default: false },

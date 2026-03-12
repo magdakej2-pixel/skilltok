@@ -1,6 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const Video = require('../models/Video');
+const Like = require('../models/Like');
+const SavedVideo = require('../models/SavedVideo');
+const Follow = require('../models/Follow');
+const Comment = require('../models/Comment');
+const admin = require('../config/firebase');
 const { authenticate } = require('../middleware/auth');
 const { body, validationResult } = require('express-validator');
 
@@ -68,7 +74,7 @@ router.put(
         return res.status(404).json({ error: { message: 'User not found' } });
       }
 
-      const allowedFields = ['displayName', 'bio', 'avatarUrl', 'expertiseCategory', 'language', 'gender'];
+      const allowedFields = ['displayName', 'bio', 'avatarUrl', 'expertiseCategory', 'language', 'gender', 'settings'];
       const updates = {};
       allowedFields.forEach((field) => {
         if (req.body[field] !== undefined) updates[field] = req.body[field];
@@ -95,6 +101,22 @@ router.put(
         }
       }
 
+      // --- Merge settings (don't overwrite entire sub-doc) ---
+      if (updates.settings && typeof updates.settings === 'object') {
+        const allowedSettingsKeys = [
+          'pushNotifications', 'emailNotifications', 'autoplay', 'dataSaver',
+          'privateAccount', 'allowComments', 'allowMessages', 'allowDuets', 'downloadWifiOnly'
+        ];
+        const existingSettings = req.user.settings || {};
+        const mergedSettings = { ...existingSettings };
+        for (const key of allowedSettingsKeys) {
+          if (updates.settings[key] !== undefined) {
+            mergedSettings[key] = Boolean(updates.settings[key]);
+          }
+        }
+        updates.settings = mergedSettings;
+      }
+
       const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true });
       res.json({ user });
     } catch (error) {
@@ -102,5 +124,41 @@ router.put(
     }
   }
 );
+
+// DELETE /api/auth/account — Delete user account entirely
+router.delete('/account', authenticate, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(404).json({ error: { message: 'User not found' } });
+    }
+
+    const userId = req.user._id;
+    const firebaseUid = req.user.firebaseUid;
+
+    // Delete all related data
+    await Promise.all([
+      Video.deleteMany({ teacherId: userId }),
+      Like.deleteMany({ userId }),
+      SavedVideo.deleteMany({ userId }),
+      Follow.deleteMany({ $or: [{ followerId: userId }, { followingId: userId }] }),
+      Comment.deleteMany({ userId }),
+    ]);
+
+    // Delete user from MongoDB
+    await User.findByIdAndDelete(userId);
+
+    // Delete from Firebase
+    try {
+      await admin.auth().deleteUser(firebaseUid);
+    } catch (fbErr) {
+      console.error('Firebase user deletion error:', fbErr.message);
+    }
+
+    res.json({ success: true, message: 'Account deleted' });
+  } catch (error) {
+    console.error('Account deletion error:', error);
+    res.status(500).json({ error: { message: 'Account deletion failed' } });
+  }
+});
 
 module.exports = router;

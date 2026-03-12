@@ -1,20 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
-  Modal, Switch, Platform, Alert,
+  Modal, Switch, Platform, Alert, Linking,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/services/firebase';
-import { useAuthStore } from '@/store';
-import { authAPI } from '@/services/api';
+import { useAuthStore, useUIStore, UserSettings } from '@/store';
+import { authAPI, videosAPI } from '@/services/api';
 import { Colors, Spacing, Typography, Radius, Languages } from '@/constants/theme';
 import { useColorScheme } from '@/components/useColorScheme';
 import { changeLanguage } from '@/i18n';
 
+const LEGAL_URLS = {
+  terms: 'https://quelio-api.onrender.com/landing/#terms',
+  privacy: 'https://quelio-api.onrender.com/landing/#privacy',
+  licenses: 'https://quelio-api.onrender.com/landing/#licenses',
+};
+
 const showAlert = (title: string, msg?: string) => {
   if (typeof window !== 'undefined') window.alert(msg ? `${title}: ${msg}` : title);
   else Alert.alert(title, msg);
+};
+
+const showConfirm = (title: string, msg: string, onConfirm: () => void) => {
+  if (Platform.OS === 'web') {
+    if (window.confirm(`${title}\n${msg}`)) onConfirm();
+  } else {
+    Alert.alert(title, msg, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'OK', style: 'destructive', onPress: onConfirm },
+    ]);
+  }
 };
 
 interface SettingsModalProps {
@@ -24,30 +42,139 @@ interface SettingsModalProps {
 
 type TabKey = 'settings' | 'privacy' | 'activity';
 
+const DEFAULT_SETTINGS: UserSettings = {
+  pushNotifications: true,
+  emailNotifications: false,
+  autoplay: true,
+  dataSaver: false,
+  privateAccount: false,
+  allowComments: true,
+  allowMessages: true,
+  allowDuets: true,
+  downloadWifiOnly: false,
+};
+
 export default function SettingsModal({ visible, onClose }: SettingsModalProps) {
   const { t, i18n } = useTranslation();
   const colorScheme = useColorScheme() ?? 'dark';
   const colors = Colors[colorScheme];
   const { user, setUser, logout: logoutStore } = useAuthStore();
+  const { setColorScheme } = useUIStore();
 
   const [activeTab, setActiveTab] = useState<TabKey>('settings');
-
-  // Toggles (local state — in real app these would be persisted)
-  const [pushNotif, setPushNotif] = useState(true);
-  const [emailNotif, setEmailNotif] = useState(false);
-  const [darkMode, setDarkMode] = useState(colorScheme === 'dark');
-  const [autoplay, setAutoplay] = useState(true);
-  const [dataSaver, setDataSaver] = useState(false);
-  const [privateAccount, setPrivateAccount] = useState(false);
-  const [allowComments, setAllowComments] = useState(true);
-  const [allowMessages, setAllowMessages] = useState(true);
-  const [allowDuets, setAllowDuets] = useState(true);
-  const [wifiOnly, setWifiOnly] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const [cacheSize, setCacheSize] = useState('...');
+  const [savingSettings, setSavingSettings] = useState(false);
+
+  // Activity stats
+  const [likedCount, setLikedCount] = useState(0);
+  const [savedCount, setSavedCount] = useState(0);
+
+  // Settings state — initialized from user.settings
+  const [settings, setSettings] = useState<UserSettings>({ ...DEFAULT_SETTINGS });
+  const [darkMode, setDarkMode] = useState(colorScheme === 'dark');
 
   const isTeacher = user?.role === 'teacher';
   const currentLang = Languages.find((l) => l.code === i18n.language) || Languages[0];
 
+  // Initialize settings from user data when modal opens
+  useEffect(() => {
+    if (visible && user) {
+      const s = user.settings || DEFAULT_SETTINGS;
+      setSettings({
+        pushNotifications: s.pushNotifications ?? DEFAULT_SETTINGS.pushNotifications,
+        emailNotifications: s.emailNotifications ?? DEFAULT_SETTINGS.emailNotifications,
+        autoplay: s.autoplay ?? DEFAULT_SETTINGS.autoplay,
+        dataSaver: s.dataSaver ?? DEFAULT_SETTINGS.dataSaver,
+        privateAccount: s.privateAccount ?? DEFAULT_SETTINGS.privateAccount,
+        allowComments: s.allowComments ?? DEFAULT_SETTINGS.allowComments,
+        allowMessages: s.allowMessages ?? DEFAULT_SETTINGS.allowMessages,
+        allowDuets: s.allowDuets ?? DEFAULT_SETTINGS.allowDuets,
+        downloadWifiOnly: s.downloadWifiOnly ?? DEFAULT_SETTINGS.downloadWifiOnly,
+      });
+      setDarkMode(colorScheme === 'dark');
+      calculateCacheSize();
+      loadActivityStats();
+    }
+  }, [visible, user]);
+
+  // ─── Persist settings to backend ───
+  const persistSettings = useCallback(async (newSettings: UserSettings) => {
+    setSavingSettings(true);
+    try {
+      const response = await authAPI.updateProfile({ settings: newSettings as any });
+      setUser(response.data.user);
+    } catch (e: any) {
+      console.error('Settings save error:', e?.response?.data || e.message);
+    }
+    setSavingSettings(false);
+  }, [setUser]);
+
+  const updateSetting = useCallback((key: keyof UserSettings, value: boolean) => {
+    const newSettings = { ...settings, [key]: value };
+    setSettings(newSettings);
+    persistSettings(newSettings);
+  }, [settings, persistSettings]);
+
+  // ─── Calculate cache size ───
+  const calculateCacheSize = async () => {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      let totalSize = 0;
+      if (keys.length > 0) {
+        const stores = await AsyncStorage.multiGet(keys);
+        stores.forEach(([, value]) => {
+          if (value) totalSize += value.length * 2; // approx bytes (UTF-16)
+        });
+      }
+      const mb = totalSize / (1024 * 1024);
+      setCacheSize(mb < 0.01 ? '< 0.01 MB' : `${mb.toFixed(2)} MB`);
+    } catch {
+      setCacheSize('N/A');
+    }
+  };
+
+  // ─── Load activity stats ───
+  const loadActivityStats = async () => {
+    try {
+      const [likedRes, savedRes] = await Promise.all([
+        videosAPI.getLiked(1),
+        videosAPI.getSaved(1),
+      ]);
+      setLikedCount(likedRes.data.videos?.length || 0);
+      setSavedCount(savedRes.data.videos?.length || 0);
+    } catch {}
+  };
+
+  // ─── Clear cache ───
+  const handleClearCache = () => {
+    showConfirm(
+      t('settingsPanel.clearCache'),
+      t('settingsPanel.clearCacheConfirm', 'This will clear all cached data. Continue?'),
+      async () => {
+        try {
+          // Only clear app cache keys, not auth-related ones
+          const keys = await AsyncStorage.getAllKeys();
+          const cacheKeys = keys.filter(k => !k.startsWith('firebase') && !k.startsWith('i18n'));
+          if (cacheKeys.length > 0) {
+            await AsyncStorage.multiRemove(cacheKeys);
+          }
+          setCacheSize('0 MB');
+          showAlert('✓', t('settingsPanel.cacheCleared', 'Cache cleared successfully'));
+        } catch {
+          showAlert(t('common.error'), t('settingsPanel.clearCacheFailed', 'Failed to clear cache'));
+        }
+      }
+    );
+  };
+
+  // ─── Dark mode toggle ───
+  const handleDarkModeToggle = (value: boolean) => {
+    setDarkMode(value);
+    setColorScheme(value ? 'dark' : 'light');
+  };
+
+  // ─── Language ───
   const handleLanguageChange = async (langCode: string) => {
     setLangDropdownOpen(false);
     await changeLanguage(langCode);
@@ -59,17 +186,45 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
     }
   };
 
-  const handleLogout = async () => {
-    console.log('Logout pressed');
-    onClose(); // close modal first
+  // ─── Open URLs ───
+  const openURL = async (url: string) => {
     try {
-      await signOut(auth);
-      console.log('Firebase signOut complete');
-    } catch (e) {
-      console.error('Sign out error:', e);
+      if (Platform.OS === 'web') {
+        window.open(url, '_blank');
+      } else {
+        const supported = await Linking.canOpenURL(url);
+        if (supported) await Linking.openURL(url);
+        else showAlert(t('common.error'), 'Cannot open this URL');
+      }
+    } catch {
+      showAlert(t('common.error'), 'Failed to open URL');
     }
+  };
+
+  // ─── Logout ───
+  const handleLogout = async () => {
+    onClose();
+    try { await signOut(auth); } catch (e) { console.error('Sign out error:', e); }
     logoutStore();
-    console.log('Store cleared');
+  };
+
+  // ─── Delete account ───
+  const handleDeleteAccount = () => {
+    showConfirm(
+      t('settingsPanel.deleteAccount', 'Delete Account'),
+      t('settingsPanel.deleteAccountConfirm', 'This will permanently delete your account and all your data. This action cannot be undone.'),
+      async () => {
+        try {
+          await authAPI.deleteAccount();
+          onClose();
+          try { await signOut(auth); } catch {}
+          logoutStore();
+          showAlert('✓', t('settingsPanel.accountDeleted', 'Your account has been deleted'));
+        } catch (e: any) {
+          showAlert(t('common.error'), e?.response?.data?.error?.message || 'Account deletion failed');
+        }
+      }
+    );
   };
 
   const GRAY = colors.textTertiary;
@@ -81,8 +236,8 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
   ];
 
   // ─── Toggle row helper ───
-  const ToggleRow = ({ icon, label, desc, value, onValueChange }: {
-    icon: string; label: string; desc: string; value: boolean; onValueChange: (v: boolean) => void;
+  const ToggleRow = ({ icon, label, desc, value, onValueChange, disabled }: {
+    icon: string; label: string; desc: string; value: boolean; onValueChange: (v: boolean) => void; disabled?: boolean;
   }) => (
     <View style={[s.toggleRow, { borderBottomColor: colors.border }]}>
       <View style={s.toggleLeft}>
@@ -95,8 +250,7 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
       <Switch
         value={value}
         onValueChange={onValueChange}
-        trackColor={{ false: colors.border, true: colors.primary + '80' }}
-        thumbColor={value ? colors.primary : colors.textTertiary}
+        disabled={disabled || savingSettings}
       />
     </View>
   );
@@ -143,14 +297,14 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
       <View style={[s.card, { backgroundColor: colors.surface }]}>
         <LinkRow icon="✉" label={t('settingsPanel.email')} value={user?.email} />
         <LinkRow icon="◉" label={t('settingsPanel.role')} value={isTeacher ? t('role.teacher') : t('role.student')} />
-        <LinkRow icon="▣" label={t('settingsPanel.memberSince')} value={new Date((user as any)?.createdAt || Date.now()).toLocaleDateString()} />
+        <LinkRow icon="▣" label={t('settingsPanel.memberSince')} value={new Date(user?.createdAt || Date.now()).toLocaleDateString()} />
       </View>
 
       {/* Notifications */}
       <SectionHeader title={t('settingsPanel.notifications')} />
       <View style={[s.card, { backgroundColor: colors.surface }]}>
-        <ToggleRow icon="◈" label={t('settingsPanel.pushNotifications')} desc={t('settingsPanel.pushDesc')} value={pushNotif} onValueChange={setPushNotif} />
-        <ToggleRow icon="▤" label={t('settingsPanel.emailNotifications')} desc={t('settingsPanel.emailDesc')} value={emailNotif} onValueChange={setEmailNotif} />
+        <ToggleRow icon="◈" label={t('settingsPanel.pushNotifications')} desc={t('settingsPanel.pushDesc')} value={settings.pushNotifications} onValueChange={(v) => updateSetting('pushNotifications', v)} />
+        <ToggleRow icon="▤" label={t('settingsPanel.emailNotifications')} desc={t('settingsPanel.emailDesc')} value={settings.emailNotifications} onValueChange={(v) => updateSetting('emailNotifications', v)} />
       </View>
 
       {/* Language */}
@@ -199,18 +353,18 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
       {/* Appearance */}
       <SectionHeader title={t('settingsPanel.appearance')} />
       <View style={[s.card, { backgroundColor: colors.surface }]}>
-        <ToggleRow icon="◑" label={t('settingsPanel.darkMode')} desc={t('settingsPanel.darkModeDesc')} value={darkMode} onValueChange={setDarkMode} />
-        <ToggleRow icon="▷" label={t('settingsPanel.autoplay')} desc={t('settingsPanel.autoplayDesc')} value={autoplay} onValueChange={setAutoplay} />
-        <ToggleRow icon="▥" label={t('settingsPanel.dataUsage')} desc={t('settingsPanel.dataUsageDesc')} value={dataSaver} onValueChange={setDataSaver} />
+        <ToggleRow icon="◑" label={t('settingsPanel.darkMode')} desc={t('settingsPanel.darkModeDesc')} value={darkMode} onValueChange={handleDarkModeToggle} />
+        <ToggleRow icon="▷" label={t('settingsPanel.autoplay')} desc={t('settingsPanel.autoplayDesc')} value={settings.autoplay} onValueChange={(v) => updateSetting('autoplay', v)} />
+        <ToggleRow icon="▥" label={t('settingsPanel.dataUsage')} desc={t('settingsPanel.dataUsageDesc')} value={settings.dataSaver} onValueChange={(v) => updateSetting('dataSaver', v)} />
       </View>
 
       {/* About */}
       <SectionHeader title={t('settingsPanel.aboutApp')} />
       <View style={[s.card, { backgroundColor: colors.surface }]}>
         <LinkRow icon="◫" label={t('settingsPanel.appVersion')} value="1.0.0" />
-        <LinkRow icon="▧" label={t('settingsPanel.termsOfService')} onPress={() => showAlert(t('settingsPanel.comingSoon'))} />
-        <LinkRow icon="⊡" label={t('settingsPanel.privacyPolicy')} onPress={() => showAlert(t('settingsPanel.comingSoon'))} />
-        <LinkRow icon="▢" label={t('settingsPanel.licenses')} onPress={() => showAlert(t('settingsPanel.comingSoon'))} />
+        <LinkRow icon="▧" label={t('settingsPanel.termsOfService')} onPress={() => openURL(LEGAL_URLS.terms)} />
+        <LinkRow icon="⊡" label={t('settingsPanel.privacyPolicy')} onPress={() => openURL(LEGAL_URLS.privacy)} />
+        <LinkRow icon="▢" label={t('settingsPanel.licenses')} onPress={() => openURL(LEGAL_URLS.licenses)} />
       </View>
 
       {/* Logout */}
@@ -219,6 +373,14 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
         onPress={handleLogout}
       >
         <Text style={[s.logoutText, { color: colors.error }]}>{t('auth.logout')}</Text>
+      </TouchableOpacity>
+
+      {/* Delete Account */}
+      <TouchableOpacity
+        style={[s.deleteBtn]}
+        onPress={handleDeleteAccount}
+      >
+        <Text style={[s.deleteText, { color: colors.error }]}>{t('settingsPanel.deleteAccount', 'Delete Account')}</Text>
       </TouchableOpacity>
     </>
   );
@@ -229,16 +391,16 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
       {/* Account privacy */}
       <SectionHeader title={t('settingsPanel.account')} />
       <View style={[s.card, { backgroundColor: colors.surface }]}>
-        <ToggleRow icon="⊘" label={t('settingsPanel.privateAccount')} desc={t('settingsPanel.privateAccountDesc')} value={privateAccount} onValueChange={setPrivateAccount} />
+        <ToggleRow icon="⊘" label={t('settingsPanel.privateAccount')} desc={t('settingsPanel.privateAccountDesc')} value={settings.privateAccount} onValueChange={(v) => updateSetting('privateAccount', v)} />
       </View>
 
       {/* Interactions */}
       <SectionHeader title="Interactions" />
       <View style={[s.card, { backgroundColor: colors.surface }]}>
-        <ToggleRow icon="▨" label={t('settingsPanel.allowComments')} desc={t('settingsPanel.allowCommentsDesc')} value={allowComments} onValueChange={setAllowComments} />
-        <ToggleRow icon="✉" label={t('settingsPanel.allowMessages')} desc={t('settingsPanel.allowMessagesDesc')} value={allowMessages} onValueChange={setAllowMessages} />
+        <ToggleRow icon="▨" label={t('settingsPanel.allowComments')} desc={t('settingsPanel.allowCommentsDesc')} value={settings.allowComments} onValueChange={(v) => updateSetting('allowComments', v)} />
+        <ToggleRow icon="✉" label={t('settingsPanel.allowMessages')} desc={t('settingsPanel.allowMessagesDesc')} value={settings.allowMessages} onValueChange={(v) => updateSetting('allowMessages', v)} />
         {isTeacher && (
-          <ToggleRow icon="▩" label={t('settingsPanel.allowDuets')} desc={t('settingsPanel.allowDuetsDesc')} value={allowDuets} onValueChange={setAllowDuets} />
+          <ToggleRow icon="▩" label={t('settingsPanel.allowDuets')} desc={t('settingsPanel.allowDuetsDesc')} value={settings.allowDuets} onValueChange={(v) => updateSetting('allowDuets', v)} />
         )}
       </View>
 
@@ -254,9 +416,9 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
       {/* Data & storage */}
       <SectionHeader title={t('settingsPanel.dataStorage')} />
       <View style={[s.card, { backgroundColor: colors.surface }]}>
-        <LinkRow icon="◧" label={t('settingsPanel.cacheSize')} value="12.4 MB" />
-        <LinkRow icon="⊟" label={t('settingsPanel.clearCache')} onPress={() => showAlert(t('settingsPanel.comingSoon'))} />
-        <ToggleRow icon="▥" label={t('settingsPanel.downloadOverWifi')} desc={t('settingsPanel.downloadWifiDesc')} value={wifiOnly} onValueChange={setWifiOnly} />
+        <LinkRow icon="◧" label={t('settingsPanel.cacheSize')} value={cacheSize} />
+        <LinkRow icon="⊟" label={t('settingsPanel.clearCache')} onPress={handleClearCache} />
+        <ToggleRow icon="▥" label={t('settingsPanel.downloadOverWifi')} desc={t('settingsPanel.downloadWifiDesc')} value={settings.downloadWifiOnly} onValueChange={(v) => updateSetting('downloadWifiOnly', v)} />
       </View>
     </>
   );
@@ -267,26 +429,26 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
       {/* Activity overview */}
       <SectionHeader title={t('settingsPanel.activity')} />
       <View style={s.statsGrid}>
-        <StatCard icon="" value={(user as any)?.totalViewsCount || 0} label={t('settingsPanel.videosWatched')} />
-        <StatCard icon="" value={(user as any)?.totalLikesGiven || 0} label={t('settingsPanel.videosLiked')} />
-        <StatCard icon="" value={(user as any)?.totalCommentsPosted || 0} label={t('settingsPanel.commentsPosted')} />
-        <StatCard icon="" value={(user as any)?.savedCount || 0} label={t('profile.saved')} />
+        <StatCard icon="👁" value={user?.videosCount || 0} label={t('settingsPanel.videosWatched')} />
+        <StatCard icon="❤️" value={likedCount} label={t('settingsPanel.videosLiked')} />
+        <StatCard icon="💬" value={user?.followingCount || 0} label={t('profile.following')} />
+        <StatCard icon="🔖" value={savedCount} label={t('profile.saved')} />
       </View>
 
       {/* Content activity */}
       <SectionHeader title={t('settingsPanel.watchHistory')} />
       <View style={[s.card, { backgroundColor: colors.surface }]}>
-        <LinkRow icon="▷" label={t('settingsPanel.watchHistory')} value={t('settingsPanel.comingSoon')} onPress={() => showAlert(t('settingsPanel.comingSoon'))} />
-        <LinkRow icon="♡" label={t('settingsPanel.likedVideos')} value={t('settingsPanel.comingSoon')} onPress={() => showAlert(t('settingsPanel.comingSoon'))} />
-        <LinkRow icon="▨" label={t('settingsPanel.commentedVideos')} value={t('settingsPanel.comingSoon')} onPress={() => showAlert(t('settingsPanel.comingSoon'))} />
+        <LinkRow icon="▷" label={t('settingsPanel.watchHistory')} value={t('settingsPanel.comingSoon')} />
+        <LinkRow icon="♡" label={t('settingsPanel.likedVideos')} value={`${likedCount}`} />
+        <LinkRow icon="🔖" label={t('profile.saved')} value={`${savedCount}`} />
       </View>
 
       {/* Login activity */}
       <SectionHeader title={t('settingsPanel.loginActivity')} />
       <View style={[s.card, { backgroundColor: colors.surface }]}>
-        <LinkRow icon="●" label={t('settingsPanel.currentSession')} value="Web" />
+        <LinkRow icon="●" label={t('settingsPanel.currentSession')} value={Platform.OS === 'web' ? 'Web' : Platform.OS === 'ios' ? 'iOS' : 'Android'} />
         <LinkRow icon="◔" label={t('settingsPanel.lastLogin')} value={new Date().toLocaleDateString()} />
-        <LinkRow icon="▣" label={t('settingsPanel.accountCreated')} value={new Date((user as any)?.createdAt || Date.now()).toLocaleDateString()} />
+        <LinkRow icon="▣" label={t('settingsPanel.accountCreated')} value={new Date(user?.createdAt || Date.now()).toLocaleDateString()} />
       </View>
     </>
   );
@@ -527,5 +689,17 @@ const s = StyleSheet.create({
   logoutText: {
     fontSize: Typography.sizes.md,
     fontWeight: '700',
+  },
+  // Delete account
+  deleteBtn: {
+    padding: Spacing.lg,
+    borderRadius: Radius.lg,
+    alignItems: 'center',
+    marginTop: Spacing.md,
+  },
+  deleteText: {
+    fontSize: Typography.sizes.sm,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
 });

@@ -1,6 +1,18 @@
 import { create } from 'zustand';
 
 // ============ AUTH STORE ============
+export interface UserSettings {
+  pushNotifications: boolean;
+  emailNotifications: boolean;
+  autoplay: boolean;
+  dataSaver: boolean;
+  privateAccount: boolean;
+  allowComments: boolean;
+  allowMessages: boolean;
+  allowDuets: boolean;
+  downloadWifiOnly: boolean;
+}
+
 export interface AppUser {
   _id: string;
   firebaseUid: string;
@@ -15,6 +27,8 @@ export interface AppUser {
   followingCount: number;
   videosCount: number;
   coffeesReceived?: number;
+  settings?: UserSettings;
+  createdAt?: string;
 }
 
 interface AuthState {

@@ -1,14 +1,15 @@
 /**
  * QUELIO Design System — Colors, Typography, Spacing
+ * Brand: Neon Pink (#FF2D78) + Soft Pink (#FF6CB5)
  * Supports dark and light mode.
  */
 
 // Color palette
 export const Colors = {
   light: {
-    primary: '#4ECDC4',        // Teal — QUELIO brand
-    primaryLight: '#6EE7DE',
-    secondary: '#00CEC9',      // Teal accent
+    primary: '#FF2D78',        // Neon Pink — QUELIO brand
+    primaryLight: '#FF6CB5',
+    secondary: '#FF6CB5',      // Soft Pink accent
     background: '#FFFFFF',
     surface: '#F8F9FA',
     surfaceElevated: '#FFFFFF',
@@ -19,20 +20,20 @@ export const Colors = {
     error: '#FF6B6B',
     success: '#51CF66',
     warning: '#FFD93D',
-    heart: '#FF6B6B',
+    heart: '#FF2D55',
     overlay: 'rgba(0, 0, 0, 0.5)',
     tabBar: '#FFFFFF',
     tabBarBorder: '#E5E7EB',
     icon: '#6B7280',
-    iconActive: '#4ECDC4',
+    iconActive: '#FF2D78',
   },
   dark: {
-    primary: '#4ECDC4',        // Teal — QUELIO brand
-    primaryLight: '#6EE7DE',
-    secondary: '#6C5CE7',
-    background: '#0F0F1A',
-    surface: '#1A1A2E',
-    surfaceElevated: '#252540',
+    primary: '#FF2D78',        // Neon Pink — QUELIO brand
+    primaryLight: '#FF6CB5',
+    secondary: '#FF6CB5',
+    background: '#0A0A12',
+    surface: '#16161F',
+    surfaceElevated: '#1E1E2A',
     text: '#F8F9FA',
     textSecondary: '#9CA3AF',
     textTertiary: '#6B7280',
@@ -40,26 +41,26 @@ export const Colors = {
     error: '#FF6B6B',
     success: '#51CF66',
     warning: '#FFD93D',
-    heart: '#FF6B6B',
+    heart: '#FF2D55',
     overlay: 'rgba(0, 0, 0, 0.7)',
-    tabBar: '#1A1A2E',
+    tabBar: '#16161F',
     tabBarBorder: '#2D2D44',
     icon: '#9CA3AF',
-    iconActive: '#4ECDC4',
+    iconActive: '#FF2D78',
   },
 };
 
 // Role-based primary color overrides
 export const RoleColors = {
   student: {
-    primary: '#4ECDC4',        // Teal
-    primaryLight: '#6EE7DE',
-    iconActive: '#4ECDC4',
+    primary: '#FF2D78',        // Neon Pink
+    primaryLight: '#FF6CB5',
+    iconActive: '#FF2D78',
   },
   teacher: {
-    primary: '#6C5CE7',        // Purple
-    primaryLight: '#A29BFE',
-    iconActive: '#6C5CE7',
+    primary: '#9B59B6',        // Rich Purple
+    primaryLight: '#BB8FCE',
+    iconActive: '#9B59B6',
   },
 };
 
@@ -106,14 +107,14 @@ export const Radius = {
 
 // Categories with icons and colors
 export const CategoryConfig: Record<string, { icon: string; color: string }> = {
-  ai: { icon: '🤖', color: '#6C5CE7' },
+  ai: { icon: '🤖', color: '#9B59B6' },
   programming: { icon: '💻', color: '#00B894' },
   marketing: { icon: '📈', color: '#E17055' },
   business: { icon: '💼', color: '#0984E3' },
   finance: { icon: '💰', color: '#FDCB6E' },
-  productivity: { icon: '⚡', color: '#00CEC9' },
+  productivity: { icon: '⚡', color: '#FF6CB5' },
   design: { icon: '🎨', color: '#E84393' },
-  entrepreneurship: { icon: '🚀', color: '#FF7675' },
+  entrepreneurship: { icon: '🚀', color: '#FF2D78' },
   'content-creator': { icon: '🎬', color: '#636E72' },
 };
 

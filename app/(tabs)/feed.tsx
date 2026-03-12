@@ -239,7 +239,7 @@ function VideoItem({ item, isActive, isFocused, onCommentPress, onTeacherPress, 
       updateVideoStats(item._id, {
         likesCount: item.likesCount + (res.data.liked ? 1 : -1),
       });
-    } catch {}
+    } catch { }
   };
 
   const handleSave = async () => {
@@ -249,7 +249,7 @@ function VideoItem({ item, isActive, isFocused, onCommentPress, onTeacherPress, 
       updateVideoStats(item._id, {
         savesCount: item.savesCount + (res.data.saved ? 1 : -1),
       });
-    } catch {}
+    } catch { }
   };
 
   const handleFollow = async () => {
@@ -273,7 +273,7 @@ function VideoItem({ item, isActive, isFocused, onCommentPress, onTeacherPress, 
       } else {
         await Share.share({ message: `Check out "${item.title}" on QUELIO!`, title: item.title });
       }
-    } catch {}
+    } catch { }
   };
 
   const lastTap = useRef(0);
@@ -613,7 +613,7 @@ const styles = StyleSheet.create({
   avatarContainer: { marginBottom: Spacing.sm },
   avatar: {
     width: 48, height: 48, borderRadius: Radius.full,
-    backgroundColor: '#6C5CE7', justifyContent: 'center', alignItems: 'center',
+    backgroundColor: '#FF2D78', justifyContent: 'center', alignItems: 'center',
     borderWidth: 2, borderColor: '#FFF',
   },
   avatarText: { color: '#FFF', fontSize: 18, fontWeight: '700' },
