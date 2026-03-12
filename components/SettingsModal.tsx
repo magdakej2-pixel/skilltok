@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
-  Modal, Switch, Platform, Alert, Linking,
+  Modal, Switch, Platform, Alert, Linking, Animated,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
@@ -235,6 +235,45 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
     { key: 'activity', icon: '▦', label: t('settingsPanel.activity') },
   ];
 
+  // ─── Web-compatible switch ───
+  const WebSwitch = ({ value, onValueChange, disabled }: {
+    value: boolean; onValueChange: (v: boolean) => void; disabled?: boolean;
+  }) => {
+    if (Platform.OS !== 'web') {
+      return <Switch value={value} onValueChange={onValueChange} disabled={disabled} />;
+    }
+    return (
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => !disabled && onValueChange(!value)}
+        style={{
+          width: 50,
+          height: 28,
+          borderRadius: 14,
+          backgroundColor: value ? colors.primary : (colors.border || '#ccc'),
+          padding: 2,
+          justifyContent: 'center',
+          opacity: disabled ? 0.5 : 1,
+        }}
+      >
+        <View
+          style={{
+            width: 24,
+            height: 24,
+            borderRadius: 12,
+            backgroundColor: '#fff',
+            alignSelf: value ? 'flex-end' : 'flex-start',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.2,
+            shadowRadius: 2,
+            elevation: 2,
+          }}
+        />
+      </TouchableOpacity>
+    );
+  };
+
   // ─── Toggle row helper ───
   const ToggleRow = ({ icon, label, desc, value, onValueChange, disabled }: {
     icon: string; label: string; desc: string; value: boolean; onValueChange: (v: boolean) => void; disabled?: boolean;
@@ -247,7 +286,7 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
           <Text style={[s.toggleDesc, { color: colors.textTertiary }]}>{desc}</Text>
         </View>
       </View>
-      <Switch
+      <WebSwitch
         value={value}
         onValueChange={onValueChange}
         disabled={disabled || savingSettings}
