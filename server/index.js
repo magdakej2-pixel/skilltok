@@ -24,7 +24,7 @@ app.use('/landing', express.static(path.join(__dirname, 'landing')));
 // Serve web app (beta) BEFORE helmet
 app.use('/app', express.static(path.join(__dirname, 'webapp')));
 // SPA fallback: serve index.html for any /app/* route not matched as a file
-app.get('/app/*', (req, res) => {
+app.get('/app/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, 'webapp', 'index.html'));
 });
 
