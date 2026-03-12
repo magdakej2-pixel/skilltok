@@ -4,6 +4,8 @@ const Video = require('../models/Video');
 const Like = require('../models/Like');
 const SavedVideo = require('../models/SavedVideo');
 const Comment = require('../models/Comment');
+const CommentLike = require('../models/CommentLike');
+const VideoView = require('../models/VideoView');
 const User = require('../models/User');
 const { authenticate, requireUser, requireTeacher } = require('../middleware/auth');
 const { validateObjectId } = require('../middleware/validate');
@@ -96,8 +98,20 @@ router.get('/:id', validateObjectId(), async (req, res) => {
       .populate('teacherId', 'displayName avatarUrl role expertiseCategory isVerified');
     if (!video) return res.status(404).json({ error: { message: 'Video not found' } });
 
-    // Increment view count
-    await Video.findByIdAndUpdate(req.params.id, { $inc: { viewsCount: 1 } });
+    // Deduplicated view count: one view per IP/user per 24h (TTL index)
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || 'unknown';
+    const viewerKey = req.headers.authorization
+      ? `user:${req.headers.authorization.slice(0, 20)}` // token prefix as identifier
+      : `ip:${ip}`;
+
+    try {
+      await VideoView.create({ videoId: req.params.id, viewerKey });
+      // Only increment if the view is new (create succeeded)
+      await Video.findByIdAndUpdate(req.params.id, { $inc: { viewsCount: 1 } });
+    } catch (dupErr) {
+      // Duplicate key error (11000) = already viewed, skip increment
+      if (dupErr.code !== 11000) console.error('View tracking error:', dupErr.message);
+    }
 
     res.json({ video });
   } catch (error) {
@@ -278,26 +292,31 @@ router.post(
 // POST /api/videos/:id/comments/:commentId/like — Toggle like on a comment
 router.post('/:id/comments/:commentId/like', authenticate, requireUser, async (req, res) => {
   try {
-    // Removed debug log for security
     const comment = await Comment.findById(req.params.commentId);
     if (!comment) return res.status(404).json({ error: { message: 'Comment not found' } });
 
-    // Simple toggle: track liked users in a field, or just increment/decrement
-    // For MVP, we'll use a simple liked array approach
-    if (!comment.likedBy) comment.likedBy = [];
-    const userId = req.user._id.toString();
-    const alreadyLiked = comment.likedBy.includes(userId);
+    // Use CommentLike collection instead of unbounded likedBy array
+    const existing = await CommentLike.findOne({
+      commentId: req.params.commentId,
+      userId: req.user._id,
+    });
 
-    if (alreadyLiked) {
-      comment.likedBy = comment.likedBy.filter(id => id !== userId);
-      comment.likesCount = Math.max(0, (comment.likesCount || 0) - 1);
+    if (existing) {
+      await existing.deleteOne();
+      await Comment.findByIdAndUpdate(req.params.commentId, {
+        $inc: { likesCount: -1 },
+      });
+      res.json({ liked: false, likesCount: Math.max(0, (comment.likesCount || 0) - 1) });
     } else {
-      comment.likedBy.push(userId);
-      comment.likesCount = (comment.likesCount || 0) + 1;
+      await CommentLike.create({
+        commentId: req.params.commentId,
+        userId: req.user._id,
+      });
+      await Comment.findByIdAndUpdate(req.params.commentId, {
+        $inc: { likesCount: 1 },
+      });
+      res.json({ liked: true, likesCount: (comment.likesCount || 0) + 1 });
     }
-    await comment.save();
-
-    res.json({ liked: !alreadyLiked, likesCount: comment.likesCount });
   } catch (error) {
     console.error('Comment like error:', error);
     res.status(500).json({ error: { message: 'Like action failed' } });
