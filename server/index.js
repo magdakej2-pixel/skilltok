@@ -21,18 +21,66 @@ const PORT = process.env.PORT || 3001;
 // ── Static sites: served BEFORE everything (no restrictive headers) ──
 app.use('/landing', express.static(path.join(__dirname, 'landing')));
 
-// Webapp static files — serve with fallthrough:false would error, but we want fallthrough
-// The key issue: URL-decode paths so @expo works correctly
+// Webapp static files
 const webappDir = path.join(__dirname, 'webapp');
-app.use('/assets', express.static(path.join(webappDir, 'assets'), {
-  maxAge: '30d',
-  immutable: true,
-}));
-app.use('/_expo', express.static(path.join(webappDir, '_expo'), {
-  maxAge: '30d',
-  immutable: true,
-}));
-app.use(express.static(webappDir));
+const fs = require('fs');
+const mime = require('express').static.mime || { lookup: () => 'application/octet-stream' };
+
+// Custom middleware: manually resolve and serve webapp asset files
+// express.static fails with paths containing @ (e.g. @expo) on production
+app.use((req, res, next) => {
+  // Only handle GET requests for static assets
+  if (req.method !== 'GET') return next();
+  
+  // URL-decode the path
+  const decodedPath = decodeURIComponent(req.path);
+  
+  // Security: prevent path traversal
+  if (decodedPath.includes('..')) return next();
+  
+  // Resolve to filesystem
+  const filePath = path.join(webappDir, decodedPath);
+  
+  // Check that resolved path is still within webappDir
+  if (!filePath.startsWith(webappDir)) return next();
+  
+  // Check if file exists (not directories)
+  try {
+    const stat = fs.statSync(filePath);
+    if (stat.isFile()) {
+      // Set content type based on extension
+      const ext = path.extname(filePath).toLowerCase();
+      const mimeTypes = {
+        '.ttf': 'font/ttf',
+        '.woff': 'font/woff',
+        '.woff2': 'font/woff2',
+        '.js': 'application/javascript',
+        '.css': 'text/css',
+        '.html': 'text/html',
+        '.json': 'application/json',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.svg': 'image/svg+xml',
+        '.ico': 'image/x-icon',
+        '.map': 'application/json',
+      };
+      const contentType = mimeTypes[ext] || 'application/octet-stream';
+      res.setHeader('Content-Type', contentType);
+      
+      // Cache static assets
+      if (ext !== '.html') {
+        res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
+      }
+      
+      return res.sendFile(filePath);
+    }
+  } catch {
+    // File doesn't exist, fall through
+  }
+  
+  next();
+});
 
 // ── API Middleware ──
 app.use('/api', helmet({
