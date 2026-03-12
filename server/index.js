@@ -61,6 +61,9 @@ app.use(cors({
   credentials: true,
 }));
 
+// ── Stripe webhook needs raw body — mount BEFORE express.json ──
+app.use('/api/donations/webhook', express.raw({ type: 'application/json' }));
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 

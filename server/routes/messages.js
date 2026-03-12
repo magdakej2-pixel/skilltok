@@ -63,8 +63,8 @@ router.get('/conversations/:id/messages', authenticate, requireUser, async (req,
       return res.status(403).json({ error: { message: 'Not a participant' } });
     }
 
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 50;
+    const page = Math.max(1, Math.min(100, parseInt(req.query.page) || 1));
+    const limit = Math.max(1, Math.min(50, parseInt(req.query.limit) || 50));
 
     const messages = await Message.find({ conversationId: req.params.id })
       .populate('senderId', 'displayName avatarUrl')

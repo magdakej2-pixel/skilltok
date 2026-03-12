@@ -51,8 +51,8 @@ router.post('/:id/follow', authenticate, requireUser, validateObjectId(), async 
 // GET /api/users/:id/followers — Get followers list
 router.get('/:id/followers', async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const page = Math.max(1, Math.min(100, parseInt(req.query.page) || 1));
+    const limit = Math.max(1, Math.min(50, parseInt(req.query.limit) || 20));
     const follows = await Follow.find({ followingId: req.params.id })
       .populate('followerId', 'displayName avatarUrl role')
       .sort({ createdAt: -1 })
@@ -68,8 +68,8 @@ router.get('/:id/followers', async (req, res) => {
 // GET /api/users/:id/following — Get following list
 router.get('/:id/following', async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const page = Math.max(1, Math.min(100, parseInt(req.query.page) || 1));
+    const limit = Math.max(1, Math.min(50, parseInt(req.query.limit) || 20));
     const follows = await Follow.find({ followerId: req.params.id })
       .populate('followingId', 'displayName avatarUrl role')
       .sort({ createdAt: -1 })

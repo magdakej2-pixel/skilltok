@@ -12,8 +12,8 @@ const { body, validationResult } = require('express-validator');
 // GET /api/videos/feed — Paginated video feed
 router.get('/feed', async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = Math.max(1, Math.min(100, parseInt(req.query.page) || 1));
+    const limit = Math.max(1, Math.min(50, parseInt(req.query.limit) || 10));
     const category = req.query.category;
 
     const query = { status: 'active' };
@@ -39,8 +39,8 @@ router.get('/feed', async (req, res) => {
 // GET /api/videos/saved — User's saved videos
 router.get('/saved', authenticate, requireUser, async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const page = Math.max(1, Math.min(100, parseInt(req.query.page) || 1));
+    const limit = Math.max(1, Math.min(50, parseInt(req.query.limit) || 20));
 
     const saved = await SavedVideo.find({ userId: req.user._id })
       .populate({
@@ -60,8 +60,8 @@ router.get('/saved', authenticate, requireUser, async (req, res) => {
 // GET /api/videos/liked — User's liked videos
 router.get('/liked', authenticate, requireUser, async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const page = Math.max(1, Math.min(100, parseInt(req.query.page) || 1));
+    const limit = Math.max(1, Math.min(50, parseInt(req.query.limit) || 20));
 
     const liked = await Like.find({ userId: req.user._id })
       .populate({
@@ -111,7 +111,7 @@ router.post(
   authenticate,
   requireTeacher,
   [
-    body('videoUrl').notEmpty(),
+    body('videoUrl').notEmpty().isURL({ protocols: ['https'], require_protocol: true }),
     body('title').trim().notEmpty().isLength({ max: 200 }),
     body('category').notEmpty(),
   ],
@@ -221,8 +221,8 @@ router.post('/:id/save', authenticate, requireUser, validateObjectId(), async (r
 // GET /api/videos/:id/comments — Get comments for a video
 router.get('/:id/comments', validateObjectId(), async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const page = Math.max(1, Math.min(100, parseInt(req.query.page) || 1));
+    const limit = Math.max(1, Math.min(50, parseInt(req.query.limit) || 20));
 
     const comments = await Comment.find({ videoId: req.params.id, parentCommentId: null })
       .populate('userId', 'displayName avatarUrl role')
