@@ -22,7 +22,10 @@ const PORT = process.env.PORT || 3001;
 app.use('/landing', express.static(path.join(__dirname, 'landing')));
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false,  // Disabled: webapp connects to Firebase, Google APIs, etc.
+  crossOriginEmbedderPolicy: false,
+}));
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
