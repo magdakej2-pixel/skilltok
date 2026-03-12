@@ -21,13 +21,6 @@ const PORT = process.env.PORT || 3001;
 // Serve landing page BEFORE helmet (no CSP restrictions for static HTML)
 app.use('/landing', express.static(path.join(__dirname, 'landing')));
 
-// Serve web app (beta) BEFORE helmet
-app.use('/app', express.static(path.join(__dirname, 'webapp')));
-// SPA fallback: serve index.html for any /app/* route not matched as a file
-app.get('/app/{*path}', (req, res) => {
-  res.sendFile(path.join(__dirname, 'webapp', 'index.html'));
-});
-
 // Middleware
 app.use(helmet());
 app.use(cors());
@@ -67,6 +60,13 @@ app.use((err, req, res, next) => {
       ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
     },
   });
+});
+
+// ── Serve web app at root (AFTER all API routes) ──
+app.use(express.static(path.join(__dirname, 'webapp')));
+// SPA fallback: any non-API route that doesn't match a file → index.html
+app.get('{*path}', (req, res) => {
+  res.sendFile(path.join(__dirname, 'webapp', 'index.html'));
 });
 
 // Connect to MongoDB and start server
