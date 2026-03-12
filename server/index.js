@@ -18,9 +18,21 @@ const waitlistRoutes = require('./routes/waitlist');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// ── Static sites: served BEFORE helmet (no restrictive headers) ──
+// ── Static sites: served BEFORE everything (no restrictive headers) ──
 app.use('/landing', express.static(path.join(__dirname, 'landing')));
-app.use(express.static(path.join(__dirname, 'webapp')));
+
+// Webapp static files — serve with fallthrough:false would error, but we want fallthrough
+// The key issue: URL-decode paths so @expo works correctly
+const webappDir = path.join(__dirname, 'webapp');
+app.use('/assets', express.static(path.join(webappDir, 'assets'), {
+  maxAge: '30d',
+  immutable: true,
+}));
+app.use('/_expo', express.static(path.join(webappDir, '_expo'), {
+  maxAge: '30d',
+  immutable: true,
+}));
+app.use(express.static(webappDir));
 
 // ── API Middleware ──
 app.use('/api', helmet({
@@ -58,9 +70,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-// SPA fallback: any route that doesn't match a file or API → index.html
+// SPA fallback: only for routes that aren't assets or API
 app.get('{*path}', (req, res) => {
-  res.sendFile(path.join(__dirname, 'webapp', 'index.html'));
+  res.sendFile(path.join(webappDir, 'index.html'));
 });
 
 // Connect to MongoDB and start server
