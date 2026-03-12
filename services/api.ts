@@ -106,5 +106,29 @@ export const messagesAPI = {
     api.post(`/messages/conversations/${conversationId}/messages`, { text }),
   getUnreadCount: () => api.get('/messages/unread-count'),
 };
+// ============ UPLOAD API ============
+export const uploadAPI = {
+  video: (file: any, onProgress?: (pct: number) => void) => {
+    const formData = new FormData();
+    formData.append('video', file);
+    return api.post('/upload/video', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 120000, // 2 min for video uploads
+      onUploadProgress: (e) => {
+        if (onProgress && e.total) {
+          onProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      },
+    });
+  },
+  image: (file: any) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    return api.post('/upload/image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60000,
+    });
+  },
+};
 
 export default api;

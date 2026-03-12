@@ -5,9 +5,7 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from 'react-i18next';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { storage } from '@/services/firebase';
-import { videosAPI, categoriesAPI } from '@/services/api';
+import { videosAPI, categoriesAPI, uploadAPI } from '@/services/api';
 import { useAuthStore } from '@/store';
 import { Spacing, Typography, Radius, CategoryConfig } from '@/constants/theme';
 import { useRoleColors } from '@/hooks/useRoleColors';
@@ -95,66 +93,48 @@ export default function UploadScreen() {
     setProgress(0);
 
     try {
-      let uploadBlob: Blob | File;
+      // Step 1: Upload video file to server -> Cloudinary
+      let fileToUpload: any;
 
       if (Platform.OS === 'web' && videoFile) {
-        // Web: use File object directly — no XHR needed
-        uploadBlob = videoFile;
+        // Web: use File object directly
+        fileToUpload = videoFile;
       } else {
-        // Native: convert URI to blob via XHR
-        uploadBlob = await new Promise<Blob>((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          xhr.onload = () => resolve(xhr.response);
-          xhr.onerror = () => reject(new Error('Failed to load video file'));
-          xhr.responseType = 'blob';
-          xhr.open('GET', videoUri, true);
-          xhr.send();
-        });
+        // Native: create a FormData-friendly object from URI
+        fileToUpload = {
+          uri: videoUri,
+          type: 'video/mp4',
+          name: `video_${Date.now()}.mp4`,
+        };
       }
 
-      // Upload video to Firebase Storage
-      const filename = `videos/${user?._id}/${Date.now()}.mp4`;
-      const storageRef = ref(storage, filename);
+      const uploadRes = await uploadAPI.video(fileToUpload, (pct) => {
+        setProgress(pct);
+      });
 
-      const uploadTask = uploadBytesResumable(storageRef, uploadBlob);
+      const videoUrl = uploadRes.data.url;
 
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const prog = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setProgress(Math.round(prog));
-        },
-        (error) => {
-          console.error('Upload error:', error);
-          showAlert(t('common.error'), t('upload.uploadFailed'));
-          setUploading(false);
-        },
-        async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+      // Step 2: Create video record in database
+      await videosAPI.create({
+        videoUrl,
+        title: title.trim(),
+        description: description.trim(),
+        tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
+        category,
+      });
 
-          // Create video record in database
-          await videosAPI.create({
-            videoUrl: downloadURL,
-            title: title.trim(),
-            description: description.trim(),
-            tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
-            category,
-          });
-
-          showAlert('✅', t('upload.uploadSuccess'));
-          // Reset form
-          setVideoUri(null);
-          setVideoFile(null);
-          setTitle('');
-          setDescription('');
-          setTags('');
-          setCategory('');
-          setUploading(false);
-          setProgress(0);
-        }
-      );
+      showAlert('\u2705', t('upload.uploadSuccess'));
+      setVideoUri(null);
+      setVideoFile(null);
+      setTitle('');
+      setDescription('');
+      setTags('');
+      setCategory('');
+      setUploading(false);
+      setProgress(0);
     } catch (error: any) {
       console.error('Upload error:', error);
-      showAlert(t('common.error'), error?.message || t('upload.uploadFailed'));
+      showAlert(t('common.error'), error?.response?.data?.error || error?.message || t('upload.uploadFailed'));
       setUploading(false);
     }
   };

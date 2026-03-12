@@ -16,6 +16,7 @@ const monetizationRoutes = require('./routes/monetization');
 const donationRoutes = require('./routes/donations');
 const messageRoutes = require('./routes/messages');
 const waitlistRoutes = require('./routes/waitlist');
+const uploadRoutes = require('./routes/upload');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -84,6 +85,7 @@ app.use('/api/monetization', monetizationRoutes);
 app.use('/api/donations', donationRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/waitlist', waitlistRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
