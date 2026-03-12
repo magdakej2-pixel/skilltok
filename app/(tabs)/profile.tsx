@@ -437,16 +437,15 @@ export default function ProfileScreen() {
         {/* Teacher Analytics */}
         {isTeacher && videos.length > 0 && (
           <View style={styles.analyticsSection}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>📊 {t('analytics.title')}</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('analytics.title')}</Text>
             <View style={styles.analyticsGrid}>
               {[
-                { icon: '👁️', value: analytics.views, label: t('analytics.totalViews') },
-                { icon: '❤️', value: analytics.likes, label: t('analytics.totalLikes') },
-                { icon: '💬', value: analytics.comments, label: t('analytics.totalComments') },
-                { icon: '🔖', value: analytics.saves, label: t('analytics.totalSaves') },
+                { value: analytics.views, label: t('analytics.totalViews') },
+                { value: analytics.likes, label: t('analytics.totalLikes') },
+                { value: analytics.comments, label: t('analytics.totalComments') },
+                { value: analytics.saves, label: t('analytics.totalSaves') },
               ].map((item, i) => (
                 <View key={i} style={[styles.analyticsCard, { backgroundColor: colors.surface }]}>
-                  <Text style={styles.analyticsIcon}>{item.icon}</Text>
                   <Text style={[styles.analyticsNumber, { color: colors.text }]}>{formatCount(item.value)}</Text>
                   <Text style={[styles.analyticsLabel, { color: colors.textSecondary }]}>{item.label}</Text>
                 </View>
