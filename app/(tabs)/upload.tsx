@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, TextInput, TouchableOpacity,
   ScrollView, Alert, ActivityIndicator, Platform,
@@ -45,24 +45,24 @@ export default function UploadScreen() {
     } catch {}
   };
 
+  // Web: use a ref to a hidden file input
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleWebFileChange = (e: any) => {
+    const file = e.target?.files?.[0];
+    if (!file) return;
+    if (file.size > 50 * 1024 * 1024) {
+      showAlert(t('common.error'), t('upload.maxSize'));
+      return;
+    }
+    setVideoFile(file);
+    setVideoUri(URL.createObjectURL(file));
+  };
+
   const pickVideo = async () => {
     if (Platform.OS === 'web') {
-      // Use native HTML file input on web
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'video/*';
-      input.onchange = (e: any) => {
-        const file = e.target?.files?.[0];
-        if (file) {
-          if (file.size > 50 * 1024 * 1024) {
-            showAlert(t('common.error'), t('upload.maxSize'));
-            return;
-          }
-          setVideoFile(file);
-          setVideoUri(URL.createObjectURL(file));
-        }
-      };
-      input.click();
+      // Trigger the hidden file input
+      fileInputRef.current?.click();
       return;
     }
 
@@ -166,6 +166,17 @@ export default function UploadScreen() {
       </View>
 
       <ScrollView style={styles.form} showsVerticalScrollIndicator={false}>
+        {/* Hidden file input for web */}
+        {Platform.OS === 'web' && (
+          <input
+            ref={fileInputRef as any}
+            type="file"
+            accept="video/*"
+            onChange={handleWebFileChange}
+            style={{ display: 'none' }}
+          />
+        )}
+
         {/* Video picker */}
         <TouchableOpacity
           style={[styles.videoPicker, { backgroundColor: colors.surface, borderColor: colors.border }]}
@@ -174,8 +185,25 @@ export default function UploadScreen() {
         >
           {videoUri ? (
             <View style={styles.videoPreview}>
-              <Text style={styles.previewIcon}>🎬</Text>
-              <Text style={[styles.previewText, { color: colors.text }]}>{t('upload.videoSelected')}</Text>
+              {Platform.OS === 'web' ? (
+                <video
+                  src={videoUri}
+                  style={{ width: '100%', maxHeight: 200, borderRadius: 8, objectFit: 'contain', backgroundColor: '#000' }}
+                  controls
+                  muted
+                />
+              ) : (
+                <>
+                  <Text style={styles.previewIcon}>🎬</Text>
+                  <Text style={[styles.previewText, { color: colors.text }]}>{t('upload.videoSelected')}</Text>
+                </>
+              )}
+              <TouchableOpacity
+                style={{ marginTop: 8, padding: 6, backgroundColor: colors.primary, borderRadius: 6, alignSelf: 'center' }}
+                onPress={pickVideo}
+              >
+                <Text style={{ color: '#fff', fontSize: 13 }}>{t('upload.changeVideo', 'Zmień film')}</Text>
+              </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.pickerContent}>
