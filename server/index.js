@@ -18,25 +18,18 @@ const waitlistRoutes = require('./routes/waitlist');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Serve landing page BEFORE helmet (no CSP restrictions for static HTML)
+// ── Static sites: served BEFORE helmet (no restrictive headers) ──
 app.use('/landing', express.static(path.join(__dirname, 'landing')));
+app.use(express.static(path.join(__dirname, 'webapp')));
 
-// Middleware
-app.use(helmet({
-  contentSecurityPolicy: false,  // Disabled: webapp connects to Firebase, Google APIs, etc.
+// ── API Middleware ──
+app.use('/api', helmet({
+  contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
 }));
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-
-// Debug: log all requests
-app.use((req, res, next) => {
-  if (req.url.includes('comment')) {
-    console.log(`[REQ] ${req.method} ${req.url}`);
-  }
-  next();
-});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -65,9 +58,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ── Serve web app at root (AFTER all API routes) ──
-app.use(express.static(path.join(__dirname, 'webapp')));
-// SPA fallback: any non-API route that doesn't match a file → index.html
+// SPA fallback: any route that doesn't match a file or API → index.html
 app.get('{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, 'webapp', 'index.html'));
 });
