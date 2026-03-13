@@ -223,6 +223,27 @@ function VideoItem({ item, isActive, isFocused, onCommentPress, onTeacherPress, 
     }
   }, [isActive, isFocused]);
 
+  // Inject CSS override for video element on web
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const styleId = 'video-fix-css';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = `
+        video {
+          width: 100% !important;
+          height: 100% !important;
+          position: relative !important;
+          object-fit: contain !important;
+          left: auto !important;
+          top: auto !important;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }, []);
+
   const onPlaybackStatusUpdate = (status: any) => {
     if (status.isLoaded) {
       setPositionMs(status.positionMillis || 0);
