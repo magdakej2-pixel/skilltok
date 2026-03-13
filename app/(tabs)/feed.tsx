@@ -15,6 +15,7 @@ import { videosAPI, usersAPI } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
 import TeacherProfileModal from '@/components/TeacherProfileModal';
 import CoffeeModal from '@/components/CoffeeModal';
+import EmojiPicker from '@/components/EmojiPicker';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -37,6 +38,7 @@ function CommentsModal({ visible, videoId, onClose }: { visible: boolean; videoI
   const [replyTo, setReplyTo] = useState<any>(null);
   const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set());
   const [likedComments, setLikedComments] = useState<Set<string>>(new Set());
+  const [showEmoji, setShowEmoji] = useState(false);
 
   useEffect(() => { if (visible && videoId) loadComments(); }, [visible, videoId]);
 
@@ -168,10 +170,23 @@ function CommentsModal({ visible, videoId, onClose }: { visible: boolean; videoI
             </View>
           )}
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+            {showEmoji && (
+              <EmojiPicker
+                colors={colors}
+                onSelect={(emoji) => setNewComment(prev => prev + emoji)}
+              />
+            )}
             <View style={[styles.commentInputRow, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
+              <TouchableOpacity
+                onPress={() => setShowEmoji(prev => !prev)}
+                style={styles.emojiToggle}
+              >
+                <Ionicons name={showEmoji ? 'close-circle-outline' : 'happy-outline'} size={22} color={colors.textSecondary} />
+              </TouchableOpacity>
               <TextInput ref={inputRef} style={[styles.commentInput, { color: colors.text }]}
                 placeholder={replyTo ? t('video.addReply', 'Add a reply...') : t('video.addComment', 'Add a comment...')}
-                placeholderTextColor={colors.textTertiary} value={newComment} onChangeText={setNewComment} multiline />
+                placeholderTextColor={colors.textTertiary} value={newComment} onChangeText={setNewComment}
+                onFocus={() => setShowEmoji(false)} multiline />
               <TouchableOpacity onPress={handlePost} disabled={posting || !newComment.trim()} style={[styles.sendButton, { opacity: newComment.trim() ? 1 : 0.4 }]}>
                 {posting ? <ActivityIndicator color={colors.primary} size="small" /> : <Ionicons name="send" size={20} color={colors.primary} />}
               </TouchableOpacity>
@@ -689,6 +704,7 @@ const styles = StyleSheet.create({
   },
   commentInput: { flex: 1, fontSize: Typography.sizes.md, maxHeight: 80, paddingVertical: Spacing.sm },
   sendButton: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm },
+  emojiToggle: { paddingHorizontal: Spacing.xs, paddingVertical: Spacing.sm },
   sendText: { fontSize: Typography.sizes.md, fontWeight: '700' },
   // Progress bar
   progressContainer: {
