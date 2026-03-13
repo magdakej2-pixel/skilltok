@@ -69,9 +69,12 @@ app.use('/api/donations/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Sanitize all inputs against NoSQL injection (strips $, . from keys)
-app.use(mongoSanitize());
-
+// Sanitize req.body against NoSQL injection (strips $, . from keys)
+// Note: req.query is a read-only getter in this Express version, so we sanitize body only
+app.use((req, res, next) => {
+  if (req.body) req.body = mongoSanitize.sanitize(req.body);
+  next();
+});
 
 // Apply rate limiters to API routes
 app.use('/api/auth', authLimiter);
