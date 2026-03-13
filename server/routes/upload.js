@@ -61,7 +61,7 @@ router.post('/video', authenticate, requireUser, upload.single('video'), async (
     });
   } catch (error) {
     console.error('Video upload error:', error.message || error);
-    res.status(500).json({ error: 'Failed to upload video' });
+    res.status(500).json({ error: { message: error.message || 'Failed to upload video' } });
   }
 });
 
