@@ -355,7 +355,7 @@ function VideoItem({ item, isActive, isFocused, onCommentPress, onTeacherPress, 
         ref={videoRef}
         source={{ uri: item.videoUrl }}
         style={styles.video}
-        resizeMode={ResizeMode.COVER}
+        resizeMode={ResizeMode.CONTAIN}
         isLooping
         shouldPlay={isActive}
         isMuted={globalMuted}
