@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
-  ActivityIndicator, Platform, TextInput, KeyboardAvoidingView, Modal,
+  ActivityIndicator, Platform, TextInput, KeyboardAvoidingView, Modal, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -187,6 +187,26 @@ export default function MessagesScreen() {
     return `${Math.floor(hrs / 24)}d`;
   };
 
+  const handleDeleteConversation = (conv: any) => {
+    const title = t('messages.deleteConversation', 'Delete this conversation?');
+    const doDelete = async () => {
+      try {
+        await messagesAPI.deleteConversation(conv._id);
+        setConversations(prev => prev.filter(c => c._id !== conv._id));
+      } catch (e) {
+        console.error('Delete conversation error:', e);
+      }
+    };
+    if (Platform.OS === 'web') {
+      if (window.confirm(title)) doDelete();
+    } else {
+      Alert.alert(t('common.confirm', 'Confirm'), title, [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('common.delete', 'Delete'), style: 'destructive', onPress: doDelete },
+      ]);
+    }
+  };
+
   // Chat view
   if (activeConversation) {
     return (
@@ -274,6 +294,13 @@ export default function MessagesScreen() {
                     )}
                   </View>
                 </View>
+                <TouchableOpacity
+                  onPress={() => handleDeleteConversation(item)}
+                  style={styles.convDeleteBtn}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <Ionicons name="trash-outline" size={18} color={colors.textTertiary} />
+                </TouchableOpacity>
               </TouchableOpacity>
             );
           }}
@@ -310,6 +337,10 @@ const styles = StyleSheet.create({
   },
   convAvatarText: { color: '#fff', fontSize: 20, fontWeight: '700' },
   convInfo: { flex: 1 },
+  convDeleteBtn: {
+    padding: Spacing.sm,
+    marginLeft: Spacing.xs,
+  },
   convTop: {
     flexDirection: 'row', justifyContent: 'space-between',
     alignItems: 'center', marginBottom: 4,

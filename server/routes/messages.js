@@ -158,5 +158,25 @@ router.get('/unread-count', authenticate, requireUser, async (req, res) => {
     res.status(500).json({ error: { message: 'Failed to fetch unread count' } });
   }
 });
+// DELETE /api/messages/conversations/:id — Delete a conversation
+router.delete('/conversations/:id', authenticate, requireUser, validateObjectId(), async (req, res) => {
+  try {
+    const conversation = await Conversation.findById(req.params.id);
+    if (!conversation) return res.status(404).json({ error: { message: 'Conversation not found' } });
+
+    if (!conversation.participants.some(p => p.toString() === req.user._id.toString())) {
+      return res.status(403).json({ error: { message: 'Not a participant' } });
+    }
+
+    // Delete all messages in this conversation
+    await Message.deleteMany({ conversationId: req.params.id });
+    // Delete the conversation itself
+    await Conversation.findByIdAndDelete(req.params.id);
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: { message: 'Failed to delete conversation' } });
+  }
+});
 
 module.exports = router;

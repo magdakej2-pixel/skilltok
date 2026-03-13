@@ -105,6 +105,8 @@ export const messagesAPI = {
   sendMessage: (conversationId: string, text: string) =>
     api.post(`/messages/conversations/${conversationId}/messages`, { text }),
   getUnreadCount: () => api.get('/messages/unread-count'),
+  deleteConversation: (conversationId: string) =>
+    api.delete(`/messages/conversations/${conversationId}`),
 };
 // ============ UPLOAD API ============
 export const uploadAPI = {
