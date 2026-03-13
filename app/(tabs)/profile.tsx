@@ -498,6 +498,41 @@ export default function ProfileScreen() {
               );
             }
 
+            const handleRemoveVideo = (video: any) => {
+              const actions: Record<string, { title: string; action: () => Promise<void> }> = {
+                my: {
+                  title: t('profile.deleteVideoConfirm', 'Delete this video permanently?'),
+                  action: async () => {
+                    await videosAPI.delete(video._id);
+                    setVideos(prev => prev.filter(v => v._id !== video._id));
+                  },
+                },
+                saved: {
+                  title: t('profile.unsaveConfirm', 'Remove from saved?'),
+                  action: async () => {
+                    await videosAPI.toggleSave(video._id);
+                    setSavedVideos(prev => prev.filter(v => v._id !== video._id));
+                  },
+                },
+                liked: {
+                  title: t('profile.unlikeConfirm', 'Remove from liked?'),
+                  action: async () => {
+                    await videosAPI.toggleLike(video._id);
+                    setLikedVideos(prev => prev.filter(v => v._id !== video._id));
+                  },
+                },
+              };
+              const { title, action } = actions[activeVideoTab];
+              if (Platform.OS === 'web') {
+                if (window.confirm(title)) action().catch(() => {});
+              } else {
+                Alert.alert(t('common.confirm', 'Confirm'), title, [
+                  { text: t('common.cancel'), style: 'cancel' },
+                  { text: t('common.delete', 'Delete'), style: 'destructive', onPress: () => action().catch(() => {}) },
+                ]);
+              }
+            };
+
             return (
               <View style={styles.videoGrid}>
                 {currentVideos.map((video: any, idx: number) => (
@@ -510,11 +545,41 @@ export default function ProfileScreen() {
                     }}
                   >
                     <View style={[styles.videoThumb, { backgroundColor: colors.surfaceElevated }]}>
-                      <Text style={styles.thumbIcon}>▶️</Text>
+                      {video.coverUrl ? (
+                        <Image source={{ uri: video.coverUrl }} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
+                      ) : video.videoUrl ? (
+                        <Image
+                          source={{ uri: video.videoUrl.replace(/\.(mp4|mov|webm)$/, '.jpg') }}
+                          style={StyleSheet.absoluteFillObject}
+                          resizeMode="cover"
+                          defaultSource={undefined}
+                        />
+                      ) : (
+                        <Text style={styles.thumbIcon}>▶️</Text>
+                      )}
+                      {/* Play icon overlay */}
+                      <View style={styles.playOverlay}>
+                        <Ionicons name="play" size={24} color="rgba(255,255,255,0.9)" />
+                      </View>
+                      {/* Bottom info overlay */}
                       <View style={styles.tileOverlay}>
                         <Text style={styles.tileTitle} numberOfLines={2}>{video.title}</Text>
-                        <Text style={styles.tileStats}>♡ {video.likesCount || 0}  ▶ {video.viewsCount || 0}</Text>
+                        <View style={styles.tileBottomRow}>
+                          <Text style={styles.tileStats}>▶ {video.viewsCount || 0}</Text>
+                        </View>
                       </View>
+                      {/* Delete/remove button */}
+                      <TouchableOpacity
+                        style={styles.tileDeleteBtn}
+                        onPress={(e) => { e.stopPropagation?.(); handleRemoveVideo(video); }}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      >
+                        <Ionicons
+                          name={activeVideoTab === 'my' ? 'trash-outline' : activeVideoTab === 'saved' ? 'bookmark-outline' : 'heart-dislike-outline'}
+                          size={16}
+                          color="#fff"
+                        />
+                      </TouchableOpacity>
                     </View>
                   </TouchableOpacity>
                 ))}
@@ -736,6 +801,34 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.8)',
     fontSize: 10,
     marginTop: 2,
+  },
+  tileBottomRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  playOverlay: {
+    position: 'absolute',
+    top: '35%',
+    alignSelf: 'center',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tileDeleteBtn: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
   },
   videoTitle: { fontSize: Typography.sizes.xs, fontWeight: '600', padding: Spacing.xs },
   videoStats: { fontSize: Typography.sizes.xs, paddingHorizontal: Spacing.xs, paddingBottom: Spacing.xs },
