@@ -10,6 +10,7 @@ import { messagesAPI } from '@/services/api';
 import { Spacing, Typography, Radius } from '@/constants/theme';
 import { useRoleColors } from '@/hooks/useRoleColors';
 import { useAuthStore } from '@/store';
+import EmojiPicker from '@/components/EmojiPicker';
 
 // ============ CHAT VIEW ============
 function ChatView({
@@ -21,6 +22,7 @@ function ChatView({
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const pollingRef = useRef<any>(null);
 
@@ -122,13 +124,26 @@ function ChatView({
 
       {/* Input */}
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        {showEmoji && (
+          <EmojiPicker
+            colors={colors}
+            onSelect={(emoji) => setText(prev => prev + emoji)}
+          />
+        )}
         <View style={[styles.inputRow, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
+          <TouchableOpacity
+            onPress={() => setShowEmoji(prev => !prev)}
+            style={styles.emojiToggle}
+          >
+            <Ionicons name={showEmoji ? 'close-circle-outline' : 'happy-outline'} size={24} color={colors.textSecondary} />
+          </TouchableOpacity>
           <TextInput
             style={[styles.textInput, { color: colors.text }]}
             placeholder={t('messages.typeMessage')}
             placeholderTextColor={colors.textTertiary}
             value={text}
             onChangeText={setText}
+            onFocus={() => setShowEmoji(false)}
             multiline
             maxLength={2000}
           />
@@ -397,4 +412,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
   },
   sendBtn: { paddingHorizontal: Spacing.sm, paddingVertical: Spacing.sm },
+  emojiToggle: { paddingHorizontal: Spacing.xs, paddingVertical: Spacing.sm },
 });
