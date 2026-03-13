@@ -616,8 +616,15 @@ const styles = StyleSheet.create({
     top: Platform.OS === 'ios' ? 55 : 35,
     padding: Spacing.xs,
   },
-  videoContainer: { width: VIDEO_WIDTH, height: VIDEO_HEIGHT, backgroundColor: '#000', alignSelf: 'center' as const },
-  video: { flex: 1 },
+  videoContainer: {
+    width: VIDEO_WIDTH,
+    height: VIDEO_HEIGHT,
+    backgroundColor: '#000',
+    alignSelf: 'center' as const,
+    overflow: 'hidden' as const,
+    ...(Platform.OS === 'web' ? { maxWidth: 480 } : {}),
+  },
+  video: { flex: 1, overflow: 'hidden' as const },
   bottomOverlay: {
     position: 'absolute', bottom: 0, left: 0, right: 0, height: 250,
   },
