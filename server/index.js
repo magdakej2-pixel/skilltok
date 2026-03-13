@@ -30,6 +30,21 @@ app.use('/fonts', express.static(path.join(webappDir, 'fonts'), {
 }));
 app.use(express.static(webappDir));
 
+// ── Express 5 compatibility: make req.query writable ──
+// Express 5 defines req.query as a read-only getter, which breaks
+// express-validator, express-mongo-sanitize, and other middleware.
+// This shim eagerly evaluates req.query and redefines it as writable.
+app.use((req, res, next) => {
+  const q = req.query;
+  Object.defineProperty(req, 'query', {
+    value: q,
+    writable: true,
+    configurable: true,
+    enumerable: true,
+  });
+  next();
+});
+
 // ── API Middleware ──
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -69,12 +84,8 @@ app.use('/api/donations/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Sanitize req.body against NoSQL injection (strips $, . from keys)
-// Note: req.query is a read-only getter in this Express version, so we sanitize body only
-app.use((req, res, next) => {
-  if (req.body) req.body = mongoSanitize.sanitize(req.body);
-  next();
-});
+// Sanitize all inputs against NoSQL injection (strips $, . from keys)
+app.use(mongoSanitize());
 
 // Apply rate limiters to API routes
 app.use('/api/auth', authLimiter);
