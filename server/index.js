@@ -108,7 +108,7 @@ app.use((err, req, res, next) => {
 });
 
 // SPA fallback
-app.get('{*path}', (req, res) => {
+app.get('*', (req, res) => {
   res.sendFile(path.join(webappDir, 'index.html'));
 });
 
