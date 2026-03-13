@@ -30,21 +30,6 @@ app.use('/fonts', express.static(path.join(webappDir, 'fonts'), {
 }));
 app.use(express.static(webappDir));
 
-// ── Express 5 compatibility: make req.query writable ──
-// Express 5 defines req.query as a read-only getter, which breaks
-// express-validator, express-mongo-sanitize, and other middleware.
-// This shim eagerly evaluates req.query and redefines it as writable.
-app.use((req, res, next) => {
-  const q = req.query;
-  Object.defineProperty(req, 'query', {
-    value: q,
-    writable: true,
-    configurable: true,
-    enumerable: true,
-  });
-  next();
-});
-
 // ── API Middleware ──
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
