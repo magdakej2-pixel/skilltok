@@ -622,8 +622,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     alignSelf: 'center' as const,
     overflow: 'hidden' as const,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
   },
-  video: { flex: 1 },
+  video: {
+    ...(Platform.OS === 'web'
+      ? { width: '100%', height: '100%' }
+      : { flex: 1 }),
+  },
   bottomOverlay: {
     position: 'absolute', bottom: 0, left: 0, right: 0, height: 250,
   },
