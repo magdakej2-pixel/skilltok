@@ -3,6 +3,7 @@ const router = express.Router();
 const Donation = require('../models/Donation');
 const User = require('../models/User');
 const { authenticate, requireUser } = require('../middleware/auth');
+const { validateObjectId } = require('../middleware/validate');
 
 // Initialize Stripe (use test key if no real key configured)
 const stripe = process.env.STRIPE_SECRET_KEY
@@ -83,7 +84,7 @@ router.post('/create-checkout-session', authenticate, requireUser, async (req, r
 
     res.json({ url: session.url, sessionId: session.id });
   } catch (error) {
-    console.error('Create checkout session error:', error);
+    console.error('Create checkout session error:', error.message);
     res.status(500).json({ error: { message: 'Failed to create checkout session' } });
   }
 });
@@ -121,7 +122,7 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 });
 
 // GET /api/donations/teacher/:id/count — Get coffee count for a teacher
-router.get('/teacher/:id/count', async (req, res) => {
+router.get('/teacher/:id/count', validateObjectId(), async (req, res) => {
   try {
     const result = await Donation.aggregate([
       { $match: { teacherId: require('mongoose').Types.ObjectId(req.params.id), status: 'completed' } },

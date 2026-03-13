@@ -8,7 +8,7 @@ const CommentLike = require('../models/CommentLike');
 const VideoView = require('../models/VideoView');
 const User = require('../models/User');
 const { authenticate, requireUser, requireTeacher } = require('../middleware/auth');
-const { validateObjectId } = require('../middleware/validate');
+const { validateObjectId, stripHtml } = require('../middleware/validate');
 const { body, validationResult } = require('express-validator');
 
 // GET /api/videos/feed — Paginated video feed
@@ -126,8 +126,12 @@ router.post(
   requireTeacher,
   [
     body('videoUrl').notEmpty().isURL({ protocols: ['https'], require_protocol: true }),
-    body('title').trim().notEmpty().isLength({ max: 200 }),
+    body('coverUrl').optional({ values: 'falsy' }).isURL({ protocols: ['https'], require_protocol: true }),
+    body('title').trim().notEmpty().isLength({ max: 200 }).customSanitizer(stripHtml),
+    body('description').optional().isLength({ max: 1000 }).customSanitizer(stripHtml),
     body('category').notEmpty(),
+    body('tags').optional().isArray({ max: 10 }),
+    body('tags.*').optional().isString().isLength({ max: 30 }).customSanitizer(v => stripHtml(v).toLowerCase()),
   ],
   async (req, res) => {
     try {
@@ -290,7 +294,7 @@ router.post(
 );
 
 // POST /api/videos/:id/comments/:commentId/like — Toggle like on a comment
-router.post('/:id/comments/:commentId/like', authenticate, requireUser, async (req, res) => {
+router.post('/:id/comments/:commentId/like', authenticate, requireUser, validateObjectId(), validateObjectId('commentId'), async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.commentId);
     if (!comment) return res.status(404).json({ error: { message: 'Comment not found' } });

@@ -32,6 +32,8 @@ app.use(express.static(webappDir));
 
 // ── API Middleware ──
 const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
+const hpp = require('hpp');
 
 // Rate limiters
 const authLimiter = rateLimit({ windowMs: 60 * 1000, max: 10, message: { error: { message: 'Too many auth requests, try again later' } } });
@@ -67,6 +69,11 @@ app.use('/api/donations/webhook', express.raw({ type: 'application/json' }));
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Sanitize all inputs against NoSQL injection (strips $, . from keys)
+app.use(mongoSanitize());
+// Prevent HTTP Parameter Pollution
+app.use(hpp());
 
 // Apply rate limiters to API routes
 app.use('/api/auth', authLimiter);

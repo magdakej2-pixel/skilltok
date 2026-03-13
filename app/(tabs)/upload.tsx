@@ -93,7 +93,7 @@ export default function UploadScreen() {
     setProgress(0);
 
     try {
-      // Step 1: Upload video file to server -> Cloudinary
+      // Step 1: Upload video file to server -> Cloudinary (0-90%)
       let fileToUpload: any;
 
       if (Platform.OS === 'web' && videoFile) {
@@ -109,12 +109,16 @@ export default function UploadScreen() {
       }
 
       const uploadRes = await uploadAPI.video(fileToUpload, (pct) => {
-        setProgress(pct);
+        setProgress(Math.round(pct * 0.9)); // Upload = 0-90%
       });
 
       const videoUrl = uploadRes.data.url;
+      if (!videoUrl) {
+        throw new Error(t('upload.uploadFailed'));
+      }
 
-      // Step 2: Create video record in database
+      // Step 2: Create video record in database (90-100%)
+      setProgress(95);
       await videosAPI.create({
         videoUrl,
         title: title.trim(),
@@ -123,6 +127,7 @@ export default function UploadScreen() {
         category,
       });
 
+      setProgress(100);
       showAlert('\u2705', t('upload.uploadSuccess'));
       setVideoUri(null);
       setVideoFile(null);
@@ -133,9 +138,14 @@ export default function UploadScreen() {
       setUploading(false);
       setProgress(0);
     } catch (error: any) {
-      console.error('Upload error:', error);
-      showAlert(t('common.error'), error?.response?.data?.error || error?.message || t('upload.uploadFailed'));
+      console.error('Upload error:', error?.response?.data || error?.message);
+      const errMsg = error?.response?.data?.error?.message
+        || error?.response?.data?.errors?.[0]?.msg
+        || error?.message
+        || t('upload.uploadFailed');
+      showAlert(t('common.error'), errMsg);
       setUploading(false);
+      setProgress(0);
     }
   };
 

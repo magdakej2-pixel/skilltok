@@ -49,7 +49,7 @@ router.post('/:id/follow', authenticate, requireUser, validateObjectId(), async 
 });
 
 // GET /api/users/:id/followers — Get followers list
-router.get('/:id/followers', async (req, res) => {
+router.get('/:id/followers', validateObjectId(), async (req, res) => {
   try {
     const page = Math.max(1, Math.min(100, parseInt(req.query.page) || 1));
     const limit = Math.max(1, Math.min(50, parseInt(req.query.limit) || 20));
@@ -66,7 +66,7 @@ router.get('/:id/followers', async (req, res) => {
 });
 
 // GET /api/users/:id/following — Get following list
-router.get('/:id/following', async (req, res) => {
+router.get('/:id/following', validateObjectId(), async (req, res) => {
   try {
     const page = Math.max(1, Math.min(100, parseInt(req.query.page) || 1));
     const limit = Math.max(1, Math.min(50, parseInt(req.query.limit) || 20));

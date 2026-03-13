@@ -5,6 +5,7 @@ const Message = require('../models/Message');
 const User = require('../models/User');
 const { authenticate, requireUser } = require('../middleware/auth');
 const { body, validationResult } = require('express-validator');
+const { validateObjectId } = require('../middleware/validate');
 
 // GET /api/messages/conversations — List user's conversations
 router.get('/conversations', authenticate, requireUser, async (req, res) => {
@@ -26,6 +27,10 @@ router.post('/conversations', authenticate, requireUser, async (req, res) => {
   try {
     const { recipientId } = req.body;
     if (!recipientId) return res.status(400).json({ error: { message: 'recipientId is required' } });
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(recipientId)) {
+      return res.status(400).json({ error: { message: 'Invalid recipientId' } });
+    }
     if (recipientId === req.user._id.toString()) {
       return res.status(400).json({ error: { message: 'Cannot message yourself' } });
     }
@@ -53,7 +58,7 @@ router.post('/conversations', authenticate, requireUser, async (req, res) => {
 });
 
 // GET /api/messages/conversations/:id/messages — Get messages in a conversation
-router.get('/conversations/:id/messages', authenticate, requireUser, async (req, res) => {
+router.get('/conversations/:id/messages', authenticate, requireUser, validateObjectId(), async (req, res) => {
   try {
     const conversation = await Conversation.findById(req.params.id);
     if (!conversation) return res.status(404).json({ error: { message: 'Conversation not found' } });
@@ -94,6 +99,7 @@ router.post(
   '/conversations/:id/messages',
   authenticate,
   requireUser,
+  validateObjectId(),
   [body('text').trim().notEmpty().isLength({ max: 2000 })],
   async (req, res) => {
     try {

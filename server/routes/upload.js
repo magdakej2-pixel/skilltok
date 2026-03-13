@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
-const { authenticate } = require('../middleware/auth');
+const { authenticate, requireUser } = require('../middleware/auth');
 
 // Configure multer for memory storage (temp buffer)
 const upload = multer({
@@ -27,7 +27,7 @@ cloudinary.config({
 });
 
 // POST /api/upload/video — upload a video file
-router.post('/video', authenticate, upload.single('video'), async (req, res) => {
+router.post('/video', authenticate, requireUser, upload.single('video'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No video file provided' });
@@ -38,7 +38,7 @@ router.post('/video', authenticate, upload.single('video'), async (req, res) => 
       const stream = cloudinary.uploader.upload_stream(
         {
           resource_type: 'video',
-          folder: `skilltok/videos/${req.user.uid}`,
+          folder: `skilltok/videos/${req.user._id}`,
           format: 'mp4',
           transformation: [
             { quality: 'auto', fetch_format: 'mp4' },
@@ -60,13 +60,13 @@ router.post('/video', authenticate, upload.single('video'), async (req, res) => 
       height: result.height,
     });
   } catch (error) {
-    console.error('Video upload error:', error);
+    console.error('Video upload error:', error.message || error);
     res.status(500).json({ error: 'Failed to upload video' });
   }
 });
 
 // POST /api/upload/image — upload an image (profile pic, etc.)
-router.post('/image', authenticate, upload.single('image'), async (req, res) => {
+router.post('/image', authenticate, requireUser, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No image file provided' });
@@ -76,7 +76,7 @@ router.post('/image', authenticate, upload.single('image'), async (req, res) => 
       const stream = cloudinary.uploader.upload_stream(
         {
           resource_type: 'image',
-          folder: `skilltok/images/${req.user.uid}`,
+          folder: `skilltok/images/${req.user._id}`,
           transformation: [
             { width: 400, height: 400, crop: 'fill', quality: 'auto' },
           ],
@@ -94,7 +94,7 @@ router.post('/image', authenticate, upload.single('image'), async (req, res) => 
       publicId: result.public_id,
     });
   } catch (error) {
-    console.error('Image upload error:', error);
+    console.error('Image upload error:', error.message || error);
     res.status(500).json({ error: 'Failed to upload image' });
   }
 });

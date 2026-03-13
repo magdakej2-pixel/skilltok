@@ -15,4 +15,13 @@ function validateObjectId(paramName = 'id') {
   };
 }
 
-module.exports = { validateObjectId };
+/**
+ * Strip HTML tags from a string to prevent stored XSS.
+ * Use as a sanitizer in express-validator chains or standalone.
+ */
+function stripHtml(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/<[^>]*>/g, '').trim();
+}
+
+module.exports = { validateObjectId, stripHtml };

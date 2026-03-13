@@ -6,9 +6,13 @@ const Like = require('../models/Like');
 const SavedVideo = require('../models/SavedVideo');
 const Follow = require('../models/Follow');
 const Comment = require('../models/Comment');
+const CommentLike = require('../models/CommentLike');
+const VideoView = require('../models/VideoView');
+const Donation = require('../models/Donation');
 const admin = require('../config/firebase');
 const { authenticate } = require('../middleware/auth');
 const { body, validationResult } = require('express-validator');
+const { stripHtml } = require('../middleware/validate');
 
 // POST /api/auth/register — Create user in MongoDB after Firebase registration
 router.post(
@@ -16,9 +20,10 @@ router.post(
 
   authenticate,
   [
-    body('displayName').trim().notEmpty().withMessage('Display name is required'),
+    body('displayName').trim().notEmpty().isLength({ max: 50 }).customSanitizer(stripHtml).withMessage('Display name is required (max 50 chars)'),
     body('role').isIn(['teacher', 'student']).withMessage('Role must be teacher or student'),
     body('language').optional().isIn(['en', 'pl', 'zh']),
+    body('bio').optional().isLength({ max: 150 }).customSanitizer(stripHtml),
   ],
   async (req, res) => {
     try {
@@ -45,7 +50,7 @@ router.post(
 
       res.status(201).json({ user });
     } catch (error) {
-      console.error('Register error:', error);
+      console.error('Register error:', error.message);
       res.status(500).json({ error: { message: 'Registration failed' } });
     }
   }
@@ -79,6 +84,13 @@ router.put(
       allowedFields.forEach((field) => {
         if (req.body[field] !== undefined) updates[field] = req.body[field];
       });
+
+      // Sanitize text fields against XSS
+      if (updates.displayName) updates.displayName = stripHtml(updates.displayName).slice(0, 50);
+      if (updates.bio !== undefined) updates.bio = stripHtml(updates.bio);
+      if (updates.avatarUrl && !/^https:\/\//i.test(updates.avatarUrl)) {
+        return res.status(400).json({ error: { message: 'Avatar URL must use HTTPS' } });
+      }
 
       // --- Weekly name change limit ---
       if (updates.displayName && updates.displayName !== req.user.displayName) {
@@ -135,13 +147,16 @@ router.delete('/account', authenticate, async (req, res) => {
     const userId = req.user._id;
     const firebaseUid = req.user.firebaseUid;
 
-    // Delete all related data
+    // Delete all related data (including new security-model collections)
     await Promise.all([
       Video.deleteMany({ teacherId: userId }),
       Like.deleteMany({ userId }),
       SavedVideo.deleteMany({ userId }),
       Follow.deleteMany({ $or: [{ followerId: userId }, { followingId: userId }] }),
       Comment.deleteMany({ userId }),
+      CommentLike.deleteMany({ userId }),
+      VideoView.deleteMany({ viewerKey: `user:${userId}` }),
+      Donation.updateMany({ userId }, { userId: null, anonymous: true }),
     ]);
 
     // Delete user from MongoDB

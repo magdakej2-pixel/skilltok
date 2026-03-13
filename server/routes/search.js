@@ -10,7 +10,7 @@ function escapeRegex(str) {
 // GET /api/search?q=&category= — Search videos by title, tags, or category
 router.get('/', async (req, res) => {
   try {
-    const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+    const q = typeof req.query.q === 'string' ? req.query.q.trim().slice(0, 100) : '';
     const category = typeof req.query.category === 'string' ? req.query.category : '';
     const page = Math.max(1, Math.min(100, parseInt(req.query.page) || 1));
     const limit = Math.max(1, Math.min(50, parseInt(req.query.limit) || 20));
