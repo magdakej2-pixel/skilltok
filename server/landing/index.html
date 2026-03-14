@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
 
-  <!-- Open Graph (Facebook, LinkedIn) -->
+  <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://quelio-api.onrender.com/landing/">
   <meta property="og:title" content="QUELIO — Learn future skills in 60-second videos">
@@ -24,7 +24,7 @@
   <meta name="twitter:description" content="Short video lessons from real experts. AI, business, marketing and more.">
   <meta name="twitter:image" content="https://quelio-api.onrender.com/landing/og-image.png">
 
-  <!-- Google Analytics — replace G-RWPEFCZC83 with your Measurement ID -->
+  <!-- GA -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWPEFCZC83"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -34,475 +34,597 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --teal: #FF2D78; --teal-dark: #E0265A;
-      --purple: #FF6CB5; --purple-light: #FFB8D9;
-      --navy: #0A0A12; --navy-mid: #111118; --navy-light: #1A1A24;
-      --surface: #16161F; --surface-light: #1E1E2A;
-      --text: #F8F9FA; --text-sec: rgba(255,255,255,0.6); --text-dim: rgba(255,255,255,0.35);
-      --border: rgba(255,255,255,0.08); --border-light: rgba(255,255,255,0.12);
-      --red: #FF4444;
+      --pink: #FF2D78; --pink-soft: #FF6CB5; --pink-glow: rgba(255,45,120,0.12);
+      --bg: #09090F; --bg-mid: #0E0E16; --surface: #141420; --surface-2: #1A1A28;
+      --text: #F0F0F5; --text-2: rgba(240,240,245,0.55); --text-3: rgba(240,240,245,0.3);
+      --border: rgba(255,255,255,0.07);
+      --radius: 16px;
     }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Poppins', sans-serif; background: var(--navy); color: var(--text); overflow-x: hidden; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg); color: var(--text);
+      overflow-x: hidden; line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
 
-    /* BG */
-    .bg { position: fixed; inset: 0; z-index: -2; background: linear-gradient(170deg, var(--navy) 0%, var(--navy-mid) 45%, var(--navy-light) 100%); }
-    .glow { position: fixed; border-radius: 50%; filter: blur(140px); z-index: -1; pointer-events: none; }
-    .glow-1 { width: 600px; height: 600px; top: -200px; right: -200px; background: #FF2D78; opacity: 0.1; }
-    .glow-2 { width: 500px; height: 500px; bottom: 0; left: -150px; background: #FF6CB5; opacity: 0.08; }
+    /* ─── ambient glow ─── */
+    .ambient { position: fixed; border-radius: 50%; filter: blur(160px); pointer-events: none; z-index: -1; }
+    .amb-1 { width: 500px; height: 500px; top: -120px; right: -100px; background: var(--pink); opacity: 0.06; }
+    .amb-2 { width: 400px; height: 400px; bottom: 20%; left: -80px; background: #6C3CE7; opacity: 0.05; }
 
-    /* NAV */
-    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 18px 40px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(20px); background: rgba(11,11,26,0.75); border-bottom: 1px solid var(--border); }
-    .nav-logo { font-size: 20px; font-weight: 800; letter-spacing: 5px; color: var(--text); text-decoration: none; }
+    /* ─── nav ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 16px 32px; display: flex; justify-content: space-between; align-items: center;
+      backdrop-filter: blur(24px); background: rgba(9,9,15,0.8); border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px; font-weight: 700; letter-spacing: 4px; color: var(--text); text-decoration: none;
+    }
+    .nav-right { display: flex; align-items: center; gap: 16px; }
     .lang-toggle { display: flex; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
-    .lang-btn { padding: 5px 14px; font-size: 12px; font-weight: 600; cursor: pointer; background: transparent; border: none; color: var(--text-sec); transition: all 0.2s; font-family: inherit; }
-    .lang-btn.active { background: linear-gradient(135deg, var(--teal), var(--purple)); color: #fff; }
+    .lang-btn { padding: 5px 14px; font-size: 11px; font-weight: 600; cursor: pointer; background: transparent; border: none; color: var(--text-2); transition: all 0.2s; font-family: inherit; }
+    .lang-btn.active { background: var(--pink); color: #fff; }
 
-    /* SECTION BASE */
-    section { padding: 100px 24px; max-width: 900px; margin: 0 auto; }
-    .section-label { font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--teal); margin-bottom: 16px; }
-    .section-title { font-size: clamp(28px, 5vw, 44px); font-weight: 800; line-height: 1.15; margin-bottom: 20px; }
-    .section-desc { font-size: clamp(15px, 1.8vw, 18px); color: var(--text-sec); line-height: 1.7; max-width: 600px; }
-    .section-title .gradient { background: linear-gradient(135deg, var(--teal), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    /* ─── layout ─── */
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
 
-    /* ========== 1. HERO ========== */
-    .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding-top: 100px; }
-    .hero-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 20px; border-radius: 50px; background: rgba(255,45,120,0.08); border: 1px solid rgba(255,45,120,0.25); font-size: 13px; font-weight: 600; color: var(--teal); margin-bottom: 32px; animation: fadeUp .6s ease both; }
-    .hero-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); animation: pulse 2s infinite; }
-    .hero-logo { font-size: clamp(48px, 9vw, 80px); font-weight: 900; letter-spacing: 10px; color: #fff; margin-bottom: 24px; animation: fadeUp .6s ease .1s both; }
-    .hero h1 { font-size: clamp(24px, 4vw, 40px); font-weight: 700; line-height: 1.2; max-width: 700px; margin-bottom: 20px; animation: fadeUp .6s ease .2s both; }
-    .hero .section-desc { margin-bottom: 40px; animation: fadeUp .6s ease .3s both; }
-    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; animation: fadeUp .6s ease .4s both; }
-    .btn { padding: 16px 32px; border-radius: 14px; border: none; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; transition: transform .2s, box-shadow .2s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
-    .btn-primary { background: linear-gradient(135deg, var(--teal), var(--purple)); color: #fff; }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,45,120,0.35); }
-    .btn-secondary { background: rgba(255,255,255,0.06); color: #fff; border: 1px solid var(--border-light); }
-    .btn-secondary:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+    /* ════════ HERO ════════ */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 120px 0 80px;
+    }
+    .hero-inner { display: grid; grid-template-columns: 1fr 300px; align-items: center; gap: 64px; width: 100%; }
+    .hero-text { max-width: 560px; }
+    .hero-tag {
+      display: inline-block; padding: 6px 16px; border-radius: 50px;
+      background: var(--pink-glow); border: 1px solid rgba(255,45,120,0.2);
+      font-size: 12px; font-weight: 600; color: var(--pink); margin-bottom: 28px;
+      letter-spacing: 0.5px;
+    }
+    .hero-tag .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--pink); margin-right: 8px; animation: pulse 2s infinite; }
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(36px, 5.5vw, 56px); font-weight: 700; line-height: 1.1;
+      margin-bottom: 24px; letter-spacing: -1px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--pink), var(--pink-soft));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero .subtitle {
+      font-size: 17px; color: var(--text-2); line-height: 1.7;
+      margin-bottom: 36px; max-width: 440px;
+    }
+    .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn {
+      padding: 14px 28px; border-radius: 12px; border: none;
+      font-family: inherit; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all .2s; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-main { background: var(--pink); color: #fff; }
+    .btn-main:hover { background: #E02468; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(255,45,120,0.3); }
+    .btn-ghost { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--surface-2); border-color: rgba(255,255,255,0.12); }
     .btn:active { transform: scale(.97); }
 
-    /* ANIMATED MOCKUP */
-    .hero-mockup { margin-top: 60px; width: 280px; height: 540px; border-radius: 36px; background: var(--surface); border: 2px solid var(--border-light); overflow: hidden; position: relative; animation: fadeUp .8s ease .5s both; box-shadow: 0 30px 80px rgba(0,0,0,0.4); }
+    /* ─── hero mockup (preserved) ─── */
+    .hero-mockup {
+      width: 280px; height: 520px; border-radius: 36px;
+      background: var(--surface); border: 2px solid rgba(255,255,255,0.08);
+      overflow: hidden; position: relative;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03) inset;
+    }
     .mockup-header { padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
-    .mockup-logo { font-weight: 800; font-size: 13px; letter-spacing: 3px; }
-    .mockup-search { width: 22px; height: 22px; border-radius: 50%; background: var(--surface-light); display: flex; align-items: center; justify-content: center; font-size: 11px; }
-    .mockup-feed { position: relative; height: 440px; overflow: hidden; }
+    .mockup-logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 3px; }
+    .mockup-feed { position: relative; height: 420px; overflow: hidden; }
     .mockup-track { display: flex; flex-direction: column; animation: scrollFeed 12s ease-in-out infinite; }
-    .mc { padding: 14px; min-height: 220px; display: flex; flex-direction: column; }
+    .mc { padding: 14px; min-height: 210px; display: flex; flex-direction: column; }
     .mc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .mc-avatar { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; }
+    .mc-avatar { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; }
     .mc-name { font-size: 11px; font-weight: 700; }
-    .mc-cat { font-size: 9px; color: var(--text-dim); }
-    .mc-vid { flex: 1; border-radius: 14px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; min-height: 160px; }
-    .mc-vid .play { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.15); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; font-size: 16px; z-index: 2; animation: playPulse 2s ease infinite; }
-    .mc-progress { position: absolute; bottom: 0; left: 0; height: 3px; border-radius: 2px; background: var(--teal); animation: progressBar 4s linear infinite; }
-    .mc-title { margin-top: 10px; font-size: 11px; font-weight: 600; }
-    .mc-actions { display: flex; gap: 18px; margin-top: 8px; align-items: center; }
-    .mc-actions span { font-size: 9px; color: var(--text-sec); display: flex; align-items: center; gap: 3px; }
-    .mc-actions .heart-anim { animation: heartPop 4s ease infinite; }
-    .mockup-tabbar { position: absolute; bottom: 0; left: 0; right: 0; height: 48px; background: var(--surface); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-around; padding: 0 16px; font-size: 16px; }
-    .mockup-tabbar span { opacity: 0.4; transition: opacity .3s; }
+    .mc-cat { font-size: 9px; color: var(--text-3); }
+    .mc-vid { flex: 1; border-radius: 14px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; min-height: 140px; }
+    .mc-vid .play { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.12); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; font-size: 14px; z-index: 2; }
+    .mc-progress { position: absolute; bottom: 0; left: 0; height: 2px; border-radius: 2px; background: var(--pink); animation: progressBar 4s linear infinite; }
+    .mc-title { margin-top: 8px; font-size: 10px; font-weight: 600; }
+    .mc-actions { display: flex; gap: 16px; margin-top: 6px; }
+    .mc-actions span { font-size: 9px; color: var(--text-2); }
+    .mockup-tabbar { position: absolute; bottom: 0; left: 0; right: 0; height: 44px; background: var(--surface); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-around; font-size: 14px; }
+    .mockup-tabbar span { opacity: 0.3; }
     .mockup-tabbar span:first-child { opacity: 1; }
-    .mockup-tabbar .add-btn { width: 28px; height: 22px; border-radius: 6px; background: linear-gradient(135deg, var(--teal), var(--purple)); display: flex; align-items: center; justify-content: center; font-size: 14px; color: #fff; opacity: 1; }
-    .mc-hearts { position: absolute; right: 12px; bottom: 40px; z-index: 3; pointer-events: none; }
-    .float-heart { position: absolute; bottom: 0; right: 0; font-size: 18px; opacity: 0; animation: floatHeart 3s ease-out infinite; }
-    .float-heart:nth-child(2) { animation-delay: 1s; right: 8px; font-size: 14px; }
-    .float-heart:nth-child(3) { animation-delay: 2s; right: -4px; font-size: 16px; }
+    .mockup-tabbar .add-btn { width: 24px; height: 18px; border-radius: 5px; background: var(--pink); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; opacity: 1; }
+    .mc-hearts { position: absolute; right: 10px; bottom: 30px; z-index: 3; pointer-events: none; }
+    .float-heart { position: absolute; bottom: 0; right: 0; font-size: 16px; opacity: 0; animation: floatHeart 3s ease-out infinite; }
+    .float-heart:nth-child(2) { animation-delay: 1s; right: 6px; font-size: 12px; }
+    .float-heart:nth-child(3) { animation-delay: 2s; right: -3px; font-size: 14px; }
 
+    /* ════════ INLINE STATS ════════ */
+    .stats-strip {
+      display: flex; gap: 48px; padding: 48px 0;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .stat { display: flex; flex-direction: column; }
+    .stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; color: var(--pink); }
+    .stat-label { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+
+    /* ════════ WHY ════════ */
+    .why { padding: 100px 0; }
+    .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px 64px; margin-top: 48px; }
+    .why-card {
+      padding: 32px 28px; border-radius: var(--radius);
+      background: var(--surface); border: 1px solid var(--border);
+      transition: border-color .3s;
+    }
+    .why-card:hover { border-color: rgba(255,45,120,0.2); }
+    .why-card .num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 40px; font-weight: 700; color: rgba(255,45,120,0.15);
+      margin-bottom: 12px; line-height: 1;
+    }
+    .why-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .why-card p { font-size: 14px; color: var(--text-2); line-height: 1.65; }
+
+    /* ════════ CATEGORIES (horizontal scroll) ════════ */
+    .cats { padding: 80px 0; }
+    .cats-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; }
+    .cats-header h2 { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; }
+    .cats-header p { font-size: 13px; color: var(--text-3); }
+    .cats-scroll {
+      display: flex; gap: 14px; overflow-x: auto; padding-bottom: 12px;
+      -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+    .cats-scroll::-webkit-scrollbar { display: none; }
+    .cat-pill {
+      flex-shrink: 0; padding: 20px 32px; border-radius: 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      scroll-snap-align: start; cursor: default; transition: all .3s;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .cat-pill:hover { border-color: var(--pink); background: rgba(255,45,120,0.05); }
+    .cat-pill .dot-color { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .cat-pill .cat-name { font-size: 14px; font-weight: 600; white-space: nowrap; }
+
+    /* ════════ MANIFESTO ════════ */
+    .manifesto {
+      padding: 100px 0; text-align: left;
+      border-top: 1px solid var(--border);
+    }
+    .manifesto-inner { max-width: 640px; }
+    .manifesto-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--pink); text-transform: uppercase; margin-bottom: 24px; }
+    .manifesto h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(26px, 4vw, 38px); font-weight: 700; line-height: 1.3;
+      margin-bottom: 28px;
+    }
+    .manifesto p { font-size: 16px; color: var(--text-2); line-height: 1.8; margin-bottom: 20px; }
+    .manifesto strong { color: var(--text); font-weight: 600; }
+
+    /* ════════ FOR CREATORS ════════ */
+    .creators {
+      padding: 100px 0;
+      border-top: 1px solid var(--border);
+    }
+    .creators-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+    .creators h2 { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; margin-bottom: 20px; line-height: 1.2; }
+    .creators .desc { font-size: 15px; color: var(--text-2); margin-bottom: 32px; line-height: 1.7; }
+    .creator-features { display: flex; flex-direction: column; gap: 16px; }
+    .cf-item {
+      display: flex; gap: 16px; align-items: flex-start;
+      padding: 20px; border-radius: var(--radius);
+      background: var(--surface); border: 1px solid var(--border);
+    }
+    .cf-icon {
+      width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .cf-item h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .cf-item p { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+
+    /* ════════ WAITLIST ════════ */
+    .waitlist {
+      padding: 100px 0;
+      border-top: 1px solid var(--border);
+    }
+    .wl-box {
+      max-width: 560px;
+      padding: 48px 40px; border-radius: 20px;
+      background: var(--surface); border: 1px solid var(--border);
+    }
+    .wl-box h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 28px; font-weight: 700; margin-bottom: 12px;
+    }
+    .wl-box .desc { font-size: 15px; color: var(--text-2); margin-bottom: 28px; line-height: 1.6; }
+    .wl-form { display: flex; gap: 10px; }
+    .wl-input {
+      flex: 1; padding: 14px 18px; border-radius: 12px;
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); font-family: inherit; font-size: 14px;
+      outline: none; transition: border .25s;
+    }
+    .wl-input::placeholder { color: var(--text-3); }
+    .wl-input:focus { border-color: var(--pink); }
+    .wl-btn {
+      padding: 14px 24px; border-radius: 12px; border: none;
+      background: var(--pink); color: #fff;
+      font-family: inherit; font-size: 14px; font-weight: 600;
+      cursor: pointer; white-space: nowrap; transition: all .2s;
+    }
+    .wl-btn:hover { background: #E02468; box-shadow: 0 4px 20px rgba(255,45,120,0.3); }
+    .wl-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .wl-success { display: none; text-align: center; padding: 20px 0; }
+    .wl-success.active { display: block; }
+    .wl-success .check-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--pink); display: inline-flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
+    .wl-success h3 { font-size: 18px; margin-bottom: 6px; }
+    .wl-success p { color: var(--text-2); font-size: 14px; }
+    .wl-error { margin-top: 10px; color: #FF4444; font-size: 13px; display: none; }
+    .wl-count {
+      margin-top: 16px; font-size: 12px; color: var(--text-3);
+    }
+    .wl-count .n { color: var(--pink); font-weight: 700; }
+
+    /* ════════ FOOTER ════════ */
+    footer {
+      padding: 40px 0; text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    .footer-socials { display: flex; justify-content: center; gap: 16px; margin-bottom: 14px; }
+    .footer-socials a {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text-2); transition: all .25s; text-decoration: none;
+    }
+    .footer-socials a:hover { border-color: var(--pink); color: var(--pink); }
+    .footer-socials svg { width: 16px; height: 16px; fill: currentColor; }
+    .footer-copy { font-size: 12px; color: var(--text-3); }
+
+    /* ─── animations ─── */
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
     @keyframes scrollFeed {
       0%, 20% { transform: translateY(0); }
-      30%, 53% { transform: translateY(-220px); }
-      63%, 86% { transform: translateY(-440px); }
+      30%, 53% { transform: translateY(-210px); }
+      63%, 86% { transform: translateY(-420px); }
       96%, 100% { transform: translateY(0); }
     }
     @keyframes progressBar { 0% { width: 0; } 100% { width: 100%; } }
-    @keyframes playPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-    @keyframes heartPop { 0%,80%,100% { transform: scale(1); } 85% { transform: scale(1.3); color: var(--red); } }
     @keyframes floatHeart {
       0% { opacity: 0; transform: translateY(0) scale(0.5); }
       15% { opacity: 1; transform: translateY(-20px) scale(1); }
-      100% { opacity: 0; transform: translateY(-90px) scale(0.6) rotate(-15deg); }
+      100% { opacity: 0; transform: translateY(-80px) scale(0.5) rotate(-15deg); }
     }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* ========== 2. PROBLEM ========== */
-    .problem { text-align: center; }
-    .problem-points { display: flex; flex-direction: column; gap: 16px; margin-top: 40px; max-width: 480px; margin-left: auto; margin-right: auto; }
-    .problem-point { display: flex; align-items: center; gap: 14px; padding: 18px 24px; border-radius: 14px; background: rgba(255,68,68,0.05); border: 1px solid rgba(255,68,68,0.12); font-size: 15px; font-weight: 500; }
-    .problem-point .x { color: var(--red); font-weight: 700; font-size: 18px; }
-
-    /* ========== 3. SOLUTION ========== */
-    .solution { text-align: center; }
-    .solution-points { display: flex; flex-direction: column; gap: 16px; margin-top: 40px; max-width: 480px; margin-left: auto; margin-right: auto; }
-    .solution-point { display: flex; align-items: center; gap: 14px; padding: 18px 24px; border-radius: 14px; background: rgba(255,45,120,0.05); border: 1px solid rgba(255,45,120,0.12); font-size: 15px; font-weight: 500; }
-    .solution-point .icon { font-size: 20px; }
-
-    /* ========== 4. HOW IT WORKS ========== */
-    .how { text-align: center; }
-    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-top: 48px; }
-    .step { padding: 36px 28px; border-radius: 20px; background: rgba(30,30,56,0.6); border: 1px solid var(--border); text-align: center; transition: transform .3s, border-color .3s; }
-    .step:hover { transform: translateY(-4px); border-color: rgba(255,45,120,0.25); }
-    .step-num { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, rgba(255,45,120,0.15), rgba(255,108,181,0.15)); display: inline-flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: var(--teal); margin-bottom: 20px; }
-    .step h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
-    .step p { font-size: 14px; color: var(--text-sec); line-height: 1.6; }
-
-    /* ========== 5. CATEGORIES ========== */
-    .categories { text-align: center; }
-    .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; }
-    .cat-card { padding: 28px 16px; border-radius: 16px; background: rgba(30,30,56,0.5); border: 1px solid var(--border); text-align: center; transition: transform .3s, border-color .3s; cursor: default; }
-    .cat-card:hover { transform: translateY(-3px); border-color: rgba(255,45,120,0.3); }
-    .cat-card .emoji { font-size: 32px; margin-bottom: 12px; }
-    .cat-card .label { font-size: 13px; font-weight: 600; }
-
-    /* ========== 6. TEACHERS ========== */
-    .teachers { text-align: center; }
-    .teacher-points { display: flex; flex-direction: column; gap: 16px; margin-top: 40px; max-width: 480px; margin-left: auto; margin-right: auto; margin-bottom: 40px; }
-    .teacher-point { display: flex; align-items: center; gap: 14px; padding: 18px 24px; border-radius: 14px; background: rgba(255,108,181,0.05); border: 1px solid rgba(255,108,181,0.12); font-size: 15px; font-weight: 500; }
-    .teacher-point .icon { font-size: 20px; }
-
-    /* ========== 7. SOCIAL PROOF ========== */
-    .proof { text-align: center; }
-    .proof-stat { display: inline-flex; align-items: center; gap: 12px; padding: 20px 36px; border-radius: 16px; background: rgba(255,45,120,0.06); border: 1px solid rgba(255,45,120,0.15); margin-top: 32px; }
-    .proof-stat .num { font-size: 36px; font-weight: 800; color: var(--teal); }
-    .proof-stat .label { font-size: 14px; color: var(--text-sec); text-align: left; }
-
-    /* ========== 8. WAITLIST ========== */
-    .waitlist { text-align: center; padding: 80px 24px; }
-    .waitlist-box { max-width: 520px; margin: 40px auto 0; padding: 48px 36px; border-radius: 24px; background: rgba(30,30,56,0.7); border: 1px solid var(--border-light); backdrop-filter: blur(10px); }
-    .wl-form { display: flex; gap: 12px; margin-top: 24px; }
-    .wl-input { flex: 1; padding: 16px 20px; border-radius: 14px; background: var(--navy); border: 1px solid var(--border); color: var(--text); font-family: inherit; font-size: 15px; outline: none; transition: border .2s; }
-    .wl-input::placeholder { color: var(--text-dim); }
-    .wl-input:focus { border-color: var(--teal); }
-    .wl-btn { padding: 16px 28px; border-radius: 14px; border: none; background: linear-gradient(135deg, var(--teal), var(--purple)); color: #fff; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: transform .2s, box-shadow .2s; }
-    .wl-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,45,120,0.35); }
-    .wl-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-    .wl-success { display: none; text-align: center; padding: 20px 0; }
-    .wl-success.active { display: block; }
-    .wl-success .check { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--purple)); display: inline-flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 16px; }
-    .wl-success h3 { font-size: 20px; margin-bottom: 8px; }
-    .wl-success p { color: var(--text-sec); font-size: 14px; }
-    .wl-error { margin-top: 12px; color: var(--red); font-size: 13px; display: none; }
-
-    /* ========== 9. FOMO ========== */
-    .fomo { text-align: center; padding: 60px 24px; }
-    .fomo-box { display: inline-block; padding: 28px 48px; border-radius: 16px; background: linear-gradient(135deg, rgba(255,45,120,0.08), rgba(255,108,181,0.08)); border: 1px solid rgba(255,45,120,0.2); }
-    .fomo-box p { font-size: clamp(16px, 2.5vw, 20px); font-weight: 700; }
-    .fomo-box .num { color: var(--teal); font-weight: 800; }
-
-    /* ========== 10. FINAL CTA ========== */
-    .final-cta { text-align: center; padding: 100px 24px; }
-    .final-cta h2 { font-size: clamp(24px, 4vw, 38px); font-weight: 800; max-width: 600px; margin: 0 auto 36px; line-height: 1.2; }
-
-    /* DIVIDER */
-    .divider { width: 60px; height: 3px; border-radius: 2px; background: linear-gradient(90deg, var(--teal), var(--purple)); margin: 0 auto 80px; }
-
-    /* FOOTER */
-    footer { padding: 40px 24px; text-align: center; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 12px; }
-    .footer-socials { display: flex; justify-content: center; gap: 20px; margin-bottom: 16px; }
-    .footer-socials a { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text-sec); transition: all .25s; text-decoration: none; }
-    .footer-socials a:hover { background: rgba(255,45,120,0.15); border-color: var(--teal); color: var(--teal); transform: translateY(-2px); }
-    .footer-socials svg { width: 18px; height: 18px; fill: currentColor; }
-
-    /* ANIMATIONS */
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
-
-    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
-    /* RESPONSIVE */
-    @media (max-width: 640px) {
+    /* ─── responsive ─── */
+    @media (max-width: 768px) {
       nav { padding: 14px 20px; }
-      section { padding: 72px 20px; }
-      .hero { padding-top: 90px; }
-      .hero-ctas { flex-direction: column; align-items: center; }
-      .btn { width: 100%; justify-content: center; }
+      .wrap { padding: 0 20px; }
+      .hero { padding: 100px 0 60px; }
+      .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+      .hero-mockup { margin: 0 auto; }
+      .stats-strip { gap: 32px; flex-wrap: wrap; }
+      .why-grid { grid-template-columns: 1fr; }
+      .creators-layout { grid-template-columns: 1fr; gap: 40px; }
       .wl-form { flex-direction: column; }
       .wl-btn { width: 100%; }
-      .steps { grid-template-columns: 1fr; }
-      .cat-grid { grid-template-columns: repeat(2, 1fr); }
-      .fomo-box { padding: 24px 28px; }
+    }
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 32px; }
+      .hero-ctas { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
     }
   </style>
 </head>
 <body>
-  <div class="bg"></div>
-  <div class="glow glow-1"></div>
-  <div class="glow glow-2"></div>
+  <div class="ambient amb-1"></div>
+  <div class="ambient amb-2"></div>
 
   <!-- NAV -->
   <nav>
     <a href="#" class="nav-logo">QUELIO</a>
-    <div class="lang-toggle">
-      <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
-      <button class="lang-btn" data-lang="pl" onclick="setLang('pl')">PL</button>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <button class="lang-btn active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="pl">PL</button>
+      </div>
     </div>
   </nav>
 
-  <!-- 1. HERO -->
-  <section class="hero">
-    <div class="hero-badge"><span class="dot"></span><span data-i18n="badge">Beta Coming Soon</span></div>
-    <div class="hero-logo">QUELIO</div>
-    <h1 data-i18n="heroTitle">Learn future skills in 60-second videos.</h1>
-    <p class="section-desc" data-i18n="heroDesc">A new learning platform where experts share short video lessons about AI, business, marketing and more.</p>
-    <div class="hero-ctas">
-      <a href="#waitlist" class="btn btn-primary" data-i18n="heroCta1">🚀 Join the Beta</a>
-      <a href="#waitlist" class="btn btn-secondary" data-i18n="heroCta2">📩 Get Early Access</a>
+  <div class="wrap">
+
+    <!-- ═══ HERO ═══ -->
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-text">
+          <div class="hero-tag"><span class="dot"></span><span data-i18n="badge">Beta Coming Soon</span></div>
+          <h1 data-i18n="heroTitle">60 seconds. <em>One new skill.</em></h1>
+          <p class="subtitle" data-i18n="heroDesc">Short video lessons from experts in AI, marketing, business and design. Scroll, watch, learn — like social media, but you actually leave smarter.</p>
+          <div class="hero-ctas">
+            <a href="#waitlist" class="btn btn-main" data-i18n="heroCta1">Get Early Access →</a>
+            <a href="#how" class="btn btn-ghost" data-i18n="heroCta2">See How It Works</a>
+          </div>
+        </div>
+
+        <!-- Animated app mockup -->
+        <div class="hero-mockup">
+          <div class="mockup-header">
+            <span class="mockup-logo">QUELIO</span>
+            <span style="font-size: 13px; opacity: 0.4;">🔍</span>
+          </div>
+          <div class="mockup-feed">
+            <div class="mockup-track">
+              <div class="mc">
+                <div class="mc-top">
+                  <div class="mc-avatar" style="background: linear-gradient(135deg, #FF2D78, #FF6CB5);"></div>
+                  <div><div class="mc-name">@Dr. Sarah AI</div><div class="mc-cat">🤖 AI · 45s</div></div>
+                </div>
+                <div class="mc-vid" style="background: linear-gradient(135deg, #1a2a4a, #2a1a4a);">
+                  <div class="play">▶</div>
+                  <div class="mc-progress"></div>
+                  <div class="mc-hearts">
+                    <div class="float-heart">❤️</div><div class="float-heart">❤️</div><div class="float-heart">❤️</div>
+                  </div>
+                </div>
+                <div class="mc-title">How to use ChatGPT for research</div>
+                <div class="mc-actions"><span>❤️ 1.2k</span><span>💬 89</span><span>🔖 320</span></div>
+              </div>
+              <div class="mc">
+                <div class="mc-top">
+                  <div class="mc-avatar" style="background: linear-gradient(135deg, #6C5CE7, #FF6B6B);"></div>
+                  <div><div class="mc-name">@Mike Growth</div><div class="mc-cat">📈 Marketing · 58s</div></div>
+                </div>
+                <div class="mc-vid" style="background: linear-gradient(135deg, #2a1a3a, #1a2a3a);">
+                  <div class="play">▶</div>
+                  <div class="mc-progress"></div>
+                  <div class="mc-hearts">
+                    <div class="float-heart">❤️</div><div class="float-heart">❤️</div><div class="float-heart">❤️</div>
+                  </div>
+                </div>
+                <div class="mc-title">5 Instagram hacks for 2026</div>
+                <div class="mc-actions"><span>❤️ 890</span><span>💬 156</span><span>🔖 543</span></div>
+              </div>
+              <div class="mc">
+                <div class="mc-top">
+                  <div class="mc-avatar" style="background: linear-gradient(135deg, #FF6CB5, #FFB8D9);"></div>
+                  <div><div class="mc-name">@Alex Code</div><div class="mc-cat">💻 Dev · 52s</div></div>
+                </div>
+                <div class="mc-vid" style="background: linear-gradient(135deg, #1a3a2a, #1a2a4a);">
+                  <div class="play">▶</div>
+                  <div class="mc-progress"></div>
+                  <div class="mc-hearts">
+                    <div class="float-heart">❤️</div><div class="float-heart">❤️</div><div class="float-heart">❤️</div>
+                  </div>
+                </div>
+                <div class="mc-title">Build an API in 60 seconds</div>
+                <div class="mc-actions"><span>❤️ 2.1k</span><span>💬 234</span><span>🔖 789</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="mockup-tabbar">
+            <span>🏠</span><span>🔍</span><div class="add-btn">+</div><span>💬</span><span>👤</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ STATS ═══ -->
+    <div class="stats-strip reveal">
+      <div class="stat">
+        <div class="stat-num" data-i18n="stat1v">60s</div>
+        <div class="stat-label" data-i18n="stat1l">max lesson length</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" data-i18n="stat2v">6</div>
+        <div class="stat-label" data-i18n="stat2l">skill categories</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="proofCount">0</div>
+        <div class="stat-label" data-i18n="stat3l">on the waitlist</div>
+      </div>
     </div>
 
-    <!-- ANIMATED APP MOCKUP -->
-    <div class="hero-mockup">
-      <div class="mockup-header">
-        <span class="mockup-logo">QUELIO</span>
-        <div class="mockup-search">🔍</div>
+    <!-- ═══ WHY ═══ -->
+    <section class="why reveal" id="how">
+      <h2 style="font-family:'Space Grotesk',sans-serif; font-size: 32px; font-weight: 700; margin-bottom: 8px;" data-i18n="whyTitle">Why short?</h2>
+      <p style="font-size: 15px; color: var(--text-2); max-width: 480px;" data-i18n="whyDesc">Long courses have a 5% completion rate. We flip the format.</p>
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="num">01</div>
+          <h3 data-i18n="w1t">Scroll through lessons</h3>
+          <p data-i18n="w1d">Same swipe-based feed you already know from TikTok — but every video teaches you something real.</p>
+        </div>
+        <div class="why-card">
+          <div class="num">02</div>
+          <h3 data-i18n="w2t">Learn from practitioners</h3>
+          <p data-i18n="w2d">No generic teachers. Every creator on QUELIO is someone who does the work — founders, engineers, marketers.</p>
+        </div>
+        <div class="why-card">
+          <div class="num">03</div>
+          <h3 data-i18n="w3t">Use it the same day</h3>
+          <p data-i18n="w3d">Lessons are designed for immediate application. Watch an AI prompt technique at 9 AM, use it by 10 AM.</p>
+        </div>
+        <div class="why-card">
+          <div class="num">04</div>
+          <h3 data-i18n="w4t">No commitment</h3>
+          <p data-i18n="w4d">No subscriptions, no 40-hour courses. Pick up your phone, swipe through 3 lessons during a coffee break.</p>
+        </div>
       </div>
-      <div class="mockup-feed">
-        <div class="mockup-track">
-          <!-- Card 1: AI -->
-          <div class="mc">
-            <div class="mc-top">
-              <div class="mc-avatar" style="background: linear-gradient(135deg, #FF2D78, #FF6CB5);"></div>
-              <div><div class="mc-name">@Dr. Sarah AI</div><div class="mc-cat">🤖 AI · 45s</div></div>
-            </div>
-            <div class="mc-vid" style="background: linear-gradient(135deg, #1a2a4a, #2a1a4a);">
-              <div class="play">▶</div>
-              <div class="mc-progress"></div>
-              <div class="mc-hearts">
-                <div class="float-heart">❤️</div>
-                <div class="float-heart">❤️</div>
-                <div class="float-heart">❤️</div>
-              </div>
-            </div>
-            <div class="mc-title">How to use ChatGPT for research</div>
-            <div class="mc-actions">
-              <span class="heart-anim">❤️ 1.2k</span>
-              <span>💬 89</span>
-              <span>🔖 320</span>
-              <span>↗️ 45</span>
-            </div>
-          </div>
-          <!-- Card 2: Marketing -->
-          <div class="mc">
-            <div class="mc-top">
-              <div class="mc-avatar" style="background: linear-gradient(135deg, #6C5CE7, #FF6B6B);"></div>
-              <div><div class="mc-name">@Mike Growth</div><div class="mc-cat">📈 Marketing · 58s</div></div>
-            </div>
-            <div class="mc-vid" style="background: linear-gradient(135deg, #2a1a3a, #1a2a3a);">
-              <div class="play">▶</div>
-              <div class="mc-progress"></div>
-              <div class="mc-hearts">
-                <div class="float-heart">❤️</div>
-                <div class="float-heart">❤️</div>
-                <div class="float-heart">❤️</div>
-              </div>
-            </div>
-            <div class="mc-title">5 Instagram hacks for 2026</div>
-            <div class="mc-actions">
-              <span class="heart-anim" style="animation-delay:1.5s;">❤️ 890</span>
-              <span>💬 156</span>
-              <span>🔖 543</span>
-              <span>↗️ 78</span>
+    </section>
+
+    <!-- ═══ CATEGORIES ═══ -->
+    <section class="cats reveal">
+      <div class="cats-header">
+        <h2 data-i18n="catTitle">Topics</h2>
+        <p data-i18n="catSub">swipe to explore →</p>
+      </div>
+      <div class="cats-scroll">
+        <div class="cat-pill"><div class="dot-color" style="background:#FF2D78;"></div><div class="cat-name" data-i18n="c1">Artificial Intelligence</div></div>
+        <div class="cat-pill"><div class="dot-color" style="background:#6C5CE7;"></div><div class="cat-name" data-i18n="c2">Programming</div></div>
+        <div class="cat-pill"><div class="dot-color" style="background:#00B894;"></div><div class="cat-name" data-i18n="c3">Marketing</div></div>
+        <div class="cat-pill"><div class="dot-color" style="background:#FDCB6E;"></div><div class="cat-name" data-i18n="c4">Business</div></div>
+        <div class="cat-pill"><div class="dot-color" style="background:#E17055;"></div><div class="cat-name" data-i18n="c5">Design</div></div>
+        <div class="cat-pill"><div class="dot-color" style="background:#0984E3;"></div><div class="cat-name" data-i18n="c6">Productivity</div></div>
+      </div>
+    </section>
+
+    <!-- ═══ MANIFESTO ═══ -->
+    <section class="manifesto reveal">
+      <div class="manifesto-inner">
+        <div class="manifesto-label" data-i18n="manLabel">Our Take</div>
+        <h2 data-i18n="manTitle">We think education is stuck in a format that doesn't match how people actually consume content anymore.</h2>
+        <p data-i18n="manP1">People scroll through <strong>500 TikToks a week</strong> but can't finish a single online course. The problem isn't attention span — it's that courses weren't designed for how we learn now.</p>
+        <p data-i18n="manP2">QUELIO is built around one idea: the most useful knowledge fits in <strong>60 seconds or less</strong>. No padding, no filler. Just the thing you need to know, explained by someone who actually does it for a living.</p>
+      </div>
+    </section>
+
+    <!-- ═══ FOR CREATORS ═══ -->
+    <section class="creators reveal">
+      <div class="creators-layout">
+        <div>
+          <h2 data-i18n="crTitle">If you're an expert, you should be here.</h2>
+          <p class="desc" data-i18n="crDesc">You already have the knowledge. We give you the audience. Record what you know, build a following, and eventually — monetize it.</p>
+          <a href="#waitlist" class="btn btn-main" data-i18n="crCta">Join as Creator →</a>
+        </div>
+        <div class="creator-features">
+          <div class="cf-item">
+            <div class="cf-icon" style="background: rgba(255,45,120,0.1);">📹</div>
+            <div>
+              <h4 data-i18n="cf1t">Record from your phone</h4>
+              <p data-i18n="cf1d">No studio, no editing team. Hit record and teach what you know.</p>
             </div>
           </div>
-          <!-- Card 3: Programming -->
-          <div class="mc">
-            <div class="mc-top">
-              <div class="mc-avatar" style="background: linear-gradient(135deg, #FF6CB5, #FFB8D9);"></div>
-              <div><div class="mc-name">@Alex Code</div><div class="mc-cat">💻 Programming · 52s</div></div>
+          <div class="cf-item">
+            <div class="cf-icon" style="background: rgba(108,92,231,0.1);">📊</div>
+            <div>
+              <h4 data-i18n="cf2t">Built-in analytics</h4>
+              <p data-i18n="cf2d">See who watches, saves, and shares. Understand your audience.</p>
             </div>
-            <div class="mc-vid" style="background: linear-gradient(135deg, #1a3a2a, #1a2a4a);">
-              <div class="play">▶</div>
-              <div class="mc-progress"></div>
-              <div class="mc-hearts">
-                <div class="float-heart">❤️</div>
-                <div class="float-heart">❤️</div>
-                <div class="float-heart">❤️</div>
-              </div>
-            </div>
-            <div class="mc-title">Build an API in 60 seconds</div>
-            <div class="mc-actions">
-              <span class="heart-anim" style="animation-delay:0.8s;">❤️ 2.1k</span>
-              <span>💬 234</span>
-              <span>🔖 789</span>
-              <span>↗️ 102</span>
+          </div>
+          <div class="cf-item">
+            <div class="cf-icon" style="background: rgba(0,184,148,0.1);">☕</div>
+            <div>
+              <h4 data-i18n="cf3t">Micro-donations</h4>
+              <p data-i18n="cf3d">Viewers can support you with virtual coffees. Direct to your Stripe.</p>
             </div>
           </div>
         </div>
       </div>
-      <!-- Tab Bar -->
-      <div class="mockup-tabbar">
-        <span>🏠</span>
-        <span>🛍</span>
-        <div class="add-btn">+</div>
-        <span>💬</span>
-        <span>👤</span>
+    </section>
+
+    <!-- ═══ WAITLIST ═══ -->
+    <section class="waitlist reveal" id="waitlist">
+      <div class="wl-box">
+        <h2 data-i18n="wlTitle">Get on the list.</h2>
+        <p class="desc" data-i18n="wlDesc">We're opening QUELIO to the first 1,000 users. Drop your email and we'll let you know when it's your turn.</p>
+        <form class="wl-form" id="wlForm">
+          <input type="email" class="wl-input" id="emailInput" placeholder="your@email.com" data-i18n-placeholder="emailPh" required>
+          <button type="submit" class="wl-btn" id="submitBtn" data-i18n="wlBtn">Join →</button>
+        </form>
+        <div class="wl-success" id="wlSuccess">
+          <div class="check-icon">✓</div>
+          <h3 data-i18n="successTitle">You're in.</h3>
+          <p data-i18n="successDesc">We'll reach out when there's a spot for you.</p>
+        </div>
+        <p class="wl-error" id="wlError"></p>
+        <p class="wl-count"><span class="n" id="proofCount2">0</span> <span data-i18n="wlPeople">people already signed up</span></p>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- 2. PROBLEM -->
-  <section class="problem reveal">
-    <div class="section-label" data-i18n="problemLabel">The Problem</div>
-    <h2 class="section-title" data-i18n="problemTitle">Learning today is <span class="gradient">broken.</span></h2>
-    <p class="section-desc" style="margin: 0 auto 0;" data-i18n="problemDesc">Most online courses are long, boring and hard to finish.<br>People want fast, practical knowledge they can apply immediately.</p>
-    <div class="problem-points">
-      <div class="problem-point"><span class="x">✕</span><span data-i18n="p1">10-hour courses nobody finishes</span></div>
-      <div class="problem-point"><span class="x">✕</span><span data-i18n="p2">Too much theory</span></div>
-      <div class="problem-point"><span class="x">✕</span><span data-i18n="p3">Not enough practical skills</span></div>
-    </div>
-  </section>
-
-  <div class="divider reveal"></div>
-
-  <!-- 3. SOLUTION -->
-  <section class="solution reveal">
-    <div class="section-label" data-i18n="solutionLabel">The Solution</div>
-    <h2 class="section-title" data-i18n="solutionTitle">Meet the <span class="gradient">future of learning.</span></h2>
-    <p class="section-desc" style="margin: 0 auto 0;" data-i18n="solutionDesc">Learn new skills through short, engaging videos from real experts.</p>
-    <div class="solution-points">
-      <div class="solution-point"><span class="icon">⚡</span><span data-i18n="s1">30-90 second lessons</span></div>
-      <div class="solution-point"><span class="icon">📱</span><span data-i18n="s2">Scroll and learn like social media</span></div>
-      <div class="solution-point"><span class="icon">🧠</span><span data-i18n="s3">Real world skills you can use immediately</span></div>
-    </div>
-  </section>
-
-  <!-- 4. HOW IT WORKS -->
-  <section class="how reveal">
-    <div class="section-label" data-i18n="howLabel">How It Works</div>
-    <h2 class="section-title" style="text-align:center;" data-i18n="howTitle">Three simple steps.</h2>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <h3 data-i18n="h1Title">Discover</h3>
-        <p data-i18n="h1Desc">Scroll through short video lessons from experts across the world.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <h3 data-i18n="h2Title">Learn</h3>
-        <p data-i18n="h2Desc">Watch quick tutorials packed with practical knowledge.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <h3 data-i18n="h3Title">Apply</h3>
-        <p data-i18n="h3Desc">Use the skills in real life — immediately after watching.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 5. CATEGORIES -->
-  <section class="categories reveal">
-    <div class="section-label" data-i18n="catLabel">Categories</div>
-    <h2 class="section-title" style="text-align:center;" data-i18n="catTitle">Learn the skills that <span class="gradient">matter.</span></h2>
-    <div class="cat-grid">
-      <div class="cat-card"><div class="emoji">🤖</div><div class="label">AI</div></div>
-      <div class="cat-card"><div class="emoji">💻</div><div class="label" data-i18n="catProg">Programming</div></div>
-      <div class="cat-card"><div class="emoji">📈</div><div class="label">Marketing</div></div>
-      <div class="cat-card"><div class="emoji">💰</div><div class="label">Business</div></div>
-      <div class="cat-card"><div class="emoji">🎨</div><div class="label">Design</div></div>
-      <div class="cat-card"><div class="emoji">⚡</div><div class="label" data-i18n="catProd">Productivity</div></div>
-    </div>
-  </section>
-
-  <!-- 6. TEACHERS -->
-  <section class="teachers reveal">
-    <div class="section-label" data-i18n="teachLabel">For Experts</div>
-    <h2 class="section-title" data-i18n="teachTitle" style="text-align:center;">Share your knowledge.<br><span class="gradient">Build your audience.</span></h2>
-    <p class="section-desc" style="margin: 0 auto;" data-i18n="teachDesc">If you are an expert, you can teach thousands of students through short video lessons.</p>
-    <div class="teacher-points">
-      <div class="teacher-point"><span class="icon">🎥</span><span data-i18n="t1">Upload short tutorials</span></div>
-      <div class="teacher-point"><span class="icon">👥</span><span data-i18n="t2">Build your audience</span></div>
-      <div class="teacher-point"><span class="icon">💰</span><span data-i18n="t3">Monetize your knowledge (coming soon)</span></div>
-    </div>
-    <a href="#waitlist" class="btn btn-primary" data-i18n="teachCta">Become a Creator</a>
-  </section>
-
-  <!-- 7. SOCIAL PROOF -->
-  <section class="proof reveal">
-    <div class="section-label" data-i18n="proofLabel">Early Access</div>
-    <h2 class="section-title" style="text-align:center;" data-i18n="proofTitle">Join the first creators already<br><span class="gradient">sharing knowledge.</span></h2>
-    <div class="proof-stat">
-      <div class="num" id="proofCount">0</div>
-      <div class="label" data-i18n="proofStat">people already<br>on the waitlist</div>
-    </div>
-  </section>
-
-  <!-- 8. WAITLIST -->
-  <section class="waitlist reveal" id="waitlist">
-    <div class="section-label" data-i18n="wlLabel">Join the Waitlist</div>
-    <h2 class="section-title" data-i18n="wlTitle" style="text-align:center;">Be among the <span class="gradient">first users.</span></h2>
-    <p class="section-desc" style="margin: 0 auto;" data-i18n="wlDesc">We are launching soon. Join the waitlist and get early access.</p>
-    <div class="waitlist-box">
-      <form class="wl-form" id="wlForm" onsubmit="handleSubmit(event)">
-        <input type="email" class="wl-input" id="emailInput" placeholder="Email address" data-i18n-placeholder="emailPh" required>
-        <button type="submit" class="wl-btn" id="submitBtn" data-i18n="wlBtn">Join the Beta</button>
-      </form>
-      <div class="wl-success" id="wlSuccess">
-        <div class="check">✓</div>
-        <h3 data-i18n="successTitle">You're on the list!</h3>
-        <p data-i18n="successDesc">We'll notify you when QUELIO is ready.</p>
-      </div>
-      <p class="wl-error" id="wlError"></p>
-    </div>
-  </section>
-
-  <!-- 9. FOMO -->
-  <section class="fomo reveal">
-    <div class="fomo-box">
-      <p data-i18n="fomo">Only the first <span class="num">1,000</span> users will get early access.</p>
-    </div>
-  </section>
-
-  <!-- 10. FINAL CTA -->
-  <section class="final-cta reveal">
-    <h2 data-i18n="finalTitle">The future of learning is <span class="gradient">short, practical and engaging.</span></h2>
-    <a href="#waitlist" class="btn btn-primary btn-lg" data-i18n="finalCta">🚀 Join the Beta</a>
-  </section>
+  </div>
 
   <!-- FOOTER -->
   <footer>
-    <div class="footer-socials">
-      <a href="https://x.com/quelioapp" target="_blank" rel="noopener" aria-label="X (Twitter)">
-        <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-      </a>
-      <a href="https://www.tiktok.com/@quelioapp" target="_blank" rel="noopener" aria-label="TikTok">
-        <svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.49a8.24 8.24 0 004.79 1.53V7.58a4.85 4.85 0 01-1.02-.89z"/></svg>
-      </a>
-      <a href="https://instagram.com/quelioapp" target="_blank" rel="noopener" aria-label="Instagram">
-        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-      </a>
+    <div class="wrap">
+      <div class="footer-socials">
+        <a href="https://x.com/quelioapp" target="_blank" rel="noopener" aria-label="X">
+          <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://www.tiktok.com/@quelioapp" target="_blank" rel="noopener" aria-label="TikTok">
+          <svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.49a8.24 8.24 0 004.79 1.53V7.58a4.85 4.85 0 01-1.02-.89z"/></svg>
+        </a>
+        <a href="https://instagram.com/quelioapp" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+      </div>
+      <p class="footer-copy">© 2026 QUELIO. <span data-i18n="footer">All rights reserved.</span></p>
     </div>
-    <p>© 2026 QUELIO. <span data-i18n="footer">All rights reserved.</span></p>
   </footer>
 
   <script>
     // ===== i18n =====
     const T = {
       en: {
-        badge:'Beta Coming Soon', heroTitle:'Learn future skills in 60-second videos.', heroDesc:'A new learning platform where experts share short video lessons about AI, business, marketing and more.', heroCta1:'🚀 Join the Beta', heroCta2:'📩 Get Early Access',
-        problemLabel:'The Problem', problemTitle:'Learning today is <span class="gradient">broken.</span>', problemDesc:'Most online courses are long, boring and hard to finish.<br>People want fast, practical knowledge they can apply immediately.', p1:'10-hour courses nobody finishes', p2:'Too much theory', p3:'Not enough practical skills',
-        solutionLabel:'The Solution', solutionTitle:'Meet the <span class="gradient">future of learning.</span>', solutionDesc:'Learn new skills through short, engaging videos from real experts.', s1:'30-90 second lessons', s2:'Scroll and learn like social media', s3:'Real world skills you can use immediately',
-        howLabel:'How It Works', howTitle:'Three simple steps.', h1Title:'Discover', h1Desc:'Scroll through short video lessons from experts across the world.', h2Title:'Learn', h2Desc:'Watch quick tutorials packed with practical knowledge.', h3Title:'Apply', h3Desc:'Use the skills in real life — immediately after watching.',
-        catLabel:'Categories', catTitle:'Learn the skills that <span class="gradient">matter.</span>', catProg:'Programming', catProd:'Productivity',
-        teachLabel:'For Experts', teachTitle:'Share your knowledge.<br><span class="gradient">Build your audience.</span>', teachDesc:'If you are an expert, you can teach thousands of students through short video lessons.', t1:'Upload short tutorials', t2:'Build your audience', t3:'Monetize your knowledge (coming soon)', teachCta:'Become a Creator',
-        proofLabel:'Early Access', proofTitle:'Join the first creators already<br><span class="gradient">sharing knowledge.</span>', proofStat:'people already<br>on the waitlist',
-        wlLabel:'Join the Waitlist', wlTitle:'Be among the <span class="gradient">first users.</span>', wlDesc:'We are launching soon. Join the waitlist and get early access.', emailPh:'Email address', wlBtn:'Join the Beta', successTitle:"You're on the list!", successDesc:"We'll notify you when QUELIO is ready.", errorMsg:'Something went wrong. Try again.', alreadyMsg:"You're already on the list! 🎉",
-        fomo:'Only the first <span class="num">1,000</span> users will get early access.',
-        finalTitle:'The future of learning is <span class="gradient">short, practical and engaging.</span>', finalCta:'🚀 Join the Beta',
+        badge:'Beta Coming Soon',
+        heroTitle:'60 seconds. <em>One new skill.</em>',
+        heroDesc:'Short video lessons from experts in AI, marketing, business and design. Scroll, watch, learn — like social media, but you actually leave smarter.',
+        heroCta1:'Get Early Access →', heroCta2:'See How It Works',
+        stat1v:'60s', stat1l:'max lesson length', stat2v:'6', stat2l:'skill categories', stat3l:'on the waitlist',
+        whyTitle:'Why short?', whyDesc:'Long courses have a 5% completion rate. We flip the format.',
+        w1t:'Scroll through lessons', w1d:'Same swipe-based feed you already know from TikTok — but every video teaches you something real.',
+        w2t:'Learn from practitioners', w2d:'No generic teachers. Every creator on QUELIO is someone who does the work — founders, engineers, marketers.',
+        w3t:'Use it the same day', w3d:'Lessons are designed for immediate application. Watch an AI prompt technique at 9 AM, use it by 10 AM.',
+        w4t:'No commitment', w4d:'No subscriptions, no 40-hour courses. Pick up your phone, swipe through 3 lessons during a coffee break.',
+        catTitle:'Topics', catSub:'swipe to explore →',
+        c1:'Artificial Intelligence', c2:'Programming', c3:'Marketing', c4:'Business', c5:'Design', c6:'Productivity',
+        manLabel:'Our Take',
+        manTitle:'We think education is stuck in a format that doesn\'t match how people actually consume content anymore.',
+        manP1:'People scroll through <strong>500 TikToks a week</strong> but can\'t finish a single online course. The problem isn\'t attention span — it\'s that courses weren\'t designed for how we learn now.',
+        manP2:'QUELIO is built around one idea: the most useful knowledge fits in <strong>60 seconds or less</strong>. No padding, no filler. Just the thing you need to know, explained by someone who actually does it for a living.',
+        crTitle:'If you\'re an expert, you should be here.',
+        crDesc:'You already have the knowledge. We give you the audience. Record what you know, build a following, and eventually — monetize it.',
+        crCta:'Join as Creator →',
+        cf1t:'Record from your phone', cf1d:'No studio, no editing team. Hit record and teach what you know.',
+        cf2t:'Built-in analytics', cf2d:'See who watches, saves, and shares. Understand your audience.',
+        cf3t:'Micro-donations', cf3d:'Viewers can support you with virtual coffees. Direct to your Stripe.',
+        wlTitle:'Get on the list.', wlDesc:'We\'re opening QUELIO to the first 1,000 users. Drop your email and we\'ll let you know when it\'s your turn.',
+        emailPh:'your@email.com', wlBtn:'Join →',
+        successTitle:'You\'re in.', successDesc:'We\'ll reach out when there\'s a spot for you.',
+        errorMsg:'Something went wrong. Try again.', alreadyMsg:'You\'re already on the list! 🎉',
+        wlPeople:'people already signed up',
         footer:'All rights reserved.'
       },
       pl: {
-        badge:'Beta Już Wkrótce', heroTitle:'Ucz się przyszłościowych umiejętności w 60 sekund.', heroDesc:'Nowa platforma edukacyjna, na której eksperci dzielą się wiedzą w krótkich filmach o AI, biznesie, marketingu i nie tylko.', heroCta1:'🚀 Dołącz do Bety', heroCta2:'📩 Uzyskaj wczesny dostęp',
-        problemLabel:'Problem', problemTitle:'Nauka dzisiaj jest <span class="gradient">zepsuta.</span>', problemDesc:'Większość kursów online jest długa, nudna i trudna do ukończenia.<br>Ludzie chcą szybkiej, praktycznej wiedzy.', p1:'10-godzinne kursy, których nikt nie kończy', p2:'Za dużo teorii', p3:'Za mało praktycznych umiejętności',
-        solutionLabel:'Rozwiązanie', solutionTitle:'Poznaj <span class="gradient">przyszłość nauki.</span>', solutionDesc:'Ucz się nowych umiejętności przez krótkie, angażujące filmy od prawdziwych ekspertów.', s1:'Lekcje po 30-90 sekund', s2:'Przewijaj i ucz się jak w social mediach', s3:'Realne umiejętności do natychmiastowego zastosowania',
-        howLabel:'Jak to działa', howTitle:'Trzy proste kroki.', h1Title:'Odkrywaj', h1Desc:'Przewijaj krótkie lekcje wideo od ekspertów z całego świata.', h2Title:'Ucz się', h2Desc:'Oglądaj szybkie tutoriale pełne praktycznej wiedzy.', h3Title:'Stosuj', h3Desc:'Wykorzystuj umiejętności w życiu — od razu po obejrzeniu.',
-        catLabel:'Kategorie', catTitle:'Ucz się umiejętności, które <span class="gradient">mają znaczenie.</span>', catProg:'Programowanie', catProd:'Produktywność',
-        teachLabel:'Dla Ekspertów', teachTitle:'Dziel się wiedzą.<br><span class="gradient">Buduj swoją publiczność.</span>', teachDesc:'Jeśli jesteś ekspertem, możesz uczyć tysiące studentów przez krótkie lekcje wideo.', t1:'Wrzucaj krótkie tutoriale', t2:'Buduj swoją publiczność', t3:'Zarabiaj na wiedzy (wkrótce)', teachCta:'Zostań Twórcą',
-        proofLabel:'Wczesny dostęp', proofTitle:'Dołącz do pierwszych twórców,<br><span class="gradient">którzy dzielą się wiedzą.</span>', proofStat:'osób już<br>na liście oczekujących',
-        wlLabel:'Lista oczekujących', wlTitle:'Bądź wśród <span class="gradient">pierwszych użytkowników.</span>', wlDesc:'Startujemy wkrótce. Dołącz do listy i uzyskaj wczesny dostęp.', emailPh:'Adres email', wlBtn:'Dołącz do Bety', successTitle:'Jesteś na liście!', successDesc:'Powiadomimy Cię, gdy QUELIO będzie gotowe.', errorMsg:'Coś poszło nie tak. Spróbuj ponownie.', alreadyMsg:'Już jesteś na liście! 🎉',
-        fomo:'Tylko pierwszych <span class="num">1000</span> użytkowników uzyska wczesny dostęp.',
-        finalTitle:'Przyszłość nauki jest <span class="gradient">krótka, praktyczna i angażująca.</span>', finalCta:'🚀 Dołącz do Bety',
+        badge:'Beta Już Wkrótce',
+        heroTitle:'60 sekund. <em>Nowa umiejętność.</em>',
+        heroDesc:'Krótkie lekcje wideo od ekspertów z AI, marketingu, biznesu i designu. Przewijaj, oglądaj, ucz się — jak social media, ale wychodzisz mądrzejszy.',
+        heroCta1:'Uzyskaj wczesny dostęp →', heroCta2:'Zobacz jak działa',
+        stat1v:'60s', stat1l:'maks. długość lekcji', stat2v:'6', stat2l:'kategorii', stat3l:'na liście oczekujących',
+        whyTitle:'Dlaczego krótko?', whyDesc:'Długie kursy mają 5% ukończalność. My odwracamy format.',
+        w1t:'Przewijaj lekcje', w1d:'Ten sam feed oparty na swipe\'ach, który znasz z TikToka — ale każdy film uczy czegoś prawdziwego.',
+        w2t:'Ucz się od praktyków', w2d:'Żadnych generycznych nauczycieli. Każdy twórca na QUELIO to ktoś, kto robi to na co dzień — founderzy, inżynierowie, marketerzy.',
+        w3t:'Użyj tego samego dnia', w3d:'Lekcje są projektowane do natychmiastowego zastosowania. Obejrzyj technikę promptów AI o 9:00, użyj jej o 10:00.',
+        w4t:'Bez zobowiązań', w4d:'Bez subskrypcji, bez 40-godzinnych kursów. Weź telefon, przewiń 3 lekcje podczas przerwy na kawę.',
+        catTitle:'Tematy', catSub:'przewiń →',
+        c1:'Sztuczna Inteligencja', c2:'Programowanie', c3:'Marketing', c4:'Biznes', c5:'Design', c6:'Produktywność',
+        manLabel:'Nasz punkt widzenia',
+        manTitle:'Uważamy, że edukacja utknęła w formacie, który nie pasuje do tego, jak ludzie dzisiaj konsumują treści.',
+        manP1:'Ludzie scrollują <strong>500 TikToków tygodniowo</strong>, ale nie mogą skończyć jednego kursu online. Problem nie w uwadze — kursy po prostu nie zostały zaprojektowane pod to, jak się teraz uczymy.',
+        manP2:'QUELIO opiera się na jednym pomyśle: najbardziej przydatna wiedza mieści się w <strong>60 sekundach lub mniej</strong>. Bez lania wody. Tylko to, co musisz wiedzieć, wyjaśnione przez kogoś, kto robi to zawodowo.',
+        crTitle:'Jeśli jesteś ekspertem, powinieneś tu być.',
+        crDesc:'Masz już wiedzę. My dajemy Ci publiczność. Nagraj to, co wiesz, buduj followersów i wkrótce — zarabiaj na tym.',
+        crCta:'Dołącz jako twórca →',
+        cf1t:'Nagrywaj telefonem', cf1d:'Bez studia, bez ekipy. Wciśnij nagrywanie i ucz tego, co wiesz.',
+        cf2t:'Wbudowana analityka', cf2d:'Zobacz kto ogląda, zapisuje i udostępnia. Zrozum swoją publiczność.',
+        cf3t:'Mikro-donacje', cf3d:'Widzowie mogą postawić Ci kawę. Bezpośrednio na Twoje Stripe.',
+        wlTitle:'Zapisz się na listę.', wlDesc:'Otwieramy QUELIO dla pierwszych 1000 użytkowników. Zostaw maila — damy znać, gdy przyjdzie Twoja kolej.',
+        emailPh:'twoj@email.com', wlBtn:'Dołącz →',
+        successTitle:'Jesteś na liście.', successDesc:'Odezwiemy się, gdy będzie miejsce.',
+        errorMsg:'Coś poszło nie tak. Spróbuj ponownie.', alreadyMsg:'Już jesteś na liście! 🎉',
+        wlPeople:'osób już się zapisało',
         footer:'Wszelkie prawa zastrzeżone.'
       }
     };
@@ -525,7 +647,7 @@
     // ===== SCROLL REVEAL =====
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }});
-    }, { threshold: 0.15 });
+    }, { threshold: 0.12 });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
     // ===== WAITLIST =====
@@ -561,19 +683,28 @@
       }
     }
     function animateCount(target) {
-      const el = document.getElementById('proofCount');
-      const start = parseInt(el.textContent) || 0;
-      if (start === target) { el.textContent = target; return; }
-      const duration = 800;
-      const startTime = performance.now();
-      function tick(now) {
-        const p = Math.min((now - startTime) / duration, 1);
-        el.textContent = Math.round(start + (target - start) * p);
-        if (p < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
+      ['proofCount', 'proofCount2'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const start = parseInt(el.textContent) || 0;
+        if (start === target) { el.textContent = target; return; }
+        const duration = 800;
+        const startTime = performance.now();
+        function tick(now) {
+          const p = Math.min((now - startTime) / duration, 1);
+          el.textContent = Math.round(start + (target - start) * p);
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
     }
     fetchCount();
+
+    // Event listeners (CSP-safe, no inline handlers)
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => setLang(btn.dataset.lang));
+    });
+    document.getElementById('wlForm').addEventListener('submit', handleSubmit);
   </script>
 </body>
 </html>
