@@ -39,15 +39,18 @@ const staticHelmet = helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", 'https://js.stripe.com'],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://js.stripe.com', 'https://apis.google.com'],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
       imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
       mediaSrc: ["'self'", 'https:', 'blob:'],
-      connectSrc: ["'self'", 'https:'],
+      connectSrc: ["'self'", 'https:', 'wss:'],
+      frameSrc: ["'self'", 'https://js.stripe.com', 'https://*.firebaseapp.com'],
+      workerSrc: ["'self'", 'blob:'],
     },
   },
   crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: false,
 });
 app.use('/landing', staticHelmet, express.static(path.join(__dirname, 'landing')));
 app.use('/fonts', express.static(path.join(webappDir, 'fonts'), {
