@@ -53,4 +53,29 @@ const requireTeacher = (req, res, next) => {
   next();
 };
 
-module.exports = { authenticate, requireUser, requireTeacher };
+/**
+ * Optional auth: tries to verify Firebase token and attach user,
+ * but continues without error if no token is present.
+ * Useful for endpoints that work for both authenticated and anonymous users.
+ */
+const optionalAuth = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      req.user = null;
+      req.firebaseUser = null;
+      return next();
+    }
+    const token = authHeader.split('Bearer ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    const user = await User.findOne({ firebaseUid: decodedToken.uid });
+    req.firebaseUser = decodedToken;
+    req.user = user || null;
+  } catch {
+    req.user = null;
+    req.firebaseUser = null;
+  }
+  next();
+};
+
+module.exports = { authenticate, requireUser, requireTeacher, optionalAuth };

@@ -31,6 +31,7 @@ router.post('/create-checkout-session', authenticate, requireUser, async (req, r
         return res.status(503).json({ error: { message: 'Payment service unavailable' } });
       }
       // Dev-mode simulation only in non-production
+      console.warn('⚠️  Stripe not configured — using dev-mode donation simulation');
       const donation = await Donation.create({
         userId: anonymous ? null : req.user._id,
         teacherId,
@@ -94,9 +95,15 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
   if (!stripe) return res.json({ received: true });
 
   const sig = req.headers['stripe-signature'];
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    console.error('❌ STRIPE_WEBHOOK_SECRET not set — rejecting webhook');
+    return res.status(500).json({ error: 'Webhook secret not configured' });
+  }
+
   let event;
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
   } catch (err) {
     console.error('Webhook signature error:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);

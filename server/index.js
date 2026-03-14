@@ -22,12 +22,39 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const webappDir = path.join(__dirname, 'webapp');
 
-// ── Static sites: served BEFORE helmet ──
-app.use('/landing', express.static(path.join(__dirname, 'landing')));
+// ── HTTPS redirect in production ──
+app.use((req, res, next) => {
+  if (
+    process.env.NODE_ENV === 'production' &&
+    req.headers['x-forwarded-proto'] &&
+    req.headers['x-forwarded-proto'] !== 'https'
+  ) {
+    return res.redirect(301, `https://${req.headers.host}${req.url}`);
+  }
+  next();
+});
+
+// ── Static sites: served with basic Helmet CSP ──
+const staticHelmet = helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", 'https://js.stripe.com'],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+      imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
+      mediaSrc: ["'self'", 'https:', 'blob:'],
+      connectSrc: ["'self'", 'https:'],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+});
+app.use('/landing', staticHelmet, express.static(path.join(__dirname, 'landing')));
 app.use('/fonts', express.static(path.join(webappDir, 'fonts'), {
   maxAge: '30d',
   immutable: true,
 }));
+app.use(staticHelmet);
 app.use(express.static(webappDir));
 
 // ── API Middleware ──
@@ -65,8 +92,8 @@ app.use(cors({
 // ── Stripe webhook needs raw body — mount BEFORE express.json ──
 app.use('/api/donations/webhook', express.raw({ type: 'application/json' }));
 
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 
 
@@ -103,6 +130,11 @@ app.use((err, req, res, next) => {
       ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
     },
   });
+});
+
+// API 404 handler (return JSON, not SPA HTML)
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: { message: 'Endpoint not found' } });
 });
 
 // SPA fallback

@@ -24,6 +24,7 @@ router.post(
     body('role').isIn(['teacher', 'student']).withMessage('Role must be teacher or student'),
     body('language').optional().isIn(['en', 'pl', 'zh']),
     body('bio').optional().isLength({ max: 150 }).customSanitizer(stripHtml),
+    body('expertiseCategory').optional().isLength({ max: 50 }).customSanitizer(stripHtml),
   ],
   async (req, res) => {
     try {

@@ -16,6 +16,11 @@ const conversationSchema = new mongoose.Schema({
     of: Number,
     default: {},
   },
+  leftAt: {
+    type: Map,
+    of: Date,
+    default: {},
+  },
 }, { timestamps: true });
 
 conversationSchema.index({ participants: 1 });

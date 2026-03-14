@@ -85,6 +85,10 @@ export const categoriesAPI = {
 export const searchAPI = {
   search: (q?: string, category?: string, page = 1) =>
     api.get('/search', { params: { q, category, page } }),
+  searchUsers: (q: string, page = 1) =>
+    api.get('/search/users', { params: { q, page } }),
+  searchByTag: (tag: string, page = 1) =>
+    api.get('/search', { params: { tag, page } }),
 };
 
 // ============ DONATIONS API ============

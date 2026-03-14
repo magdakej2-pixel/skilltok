@@ -7,7 +7,7 @@ const Comment = require('../models/Comment');
 const CommentLike = require('../models/CommentLike');
 const VideoView = require('../models/VideoView');
 const User = require('../models/User');
-const { authenticate, requireUser, requireTeacher } = require('../middleware/auth');
+const { authenticate, requireUser, requireTeacher, optionalAuth } = require('../middleware/auth');
 const { validateObjectId, stripHtml } = require('../middleware/validate');
 const { body, validationResult } = require('express-validator');
 
@@ -92,7 +92,7 @@ router.get('/teacher/:id', validateObjectId(), async (req, res) => {
 });
 
 // GET /api/videos/:id — Single video
-router.get('/:id', validateObjectId(), async (req, res) => {
+router.get('/:id', optionalAuth, validateObjectId(), async (req, res) => {
   try {
     const video = await Video.findById(req.params.id)
       .populate('teacherId', 'displayName avatarUrl role expertiseCategory isVerified');
@@ -100,8 +100,9 @@ router.get('/:id', validateObjectId(), async (req, res) => {
 
     // Deduplicated view count: one view per IP/user per 24h (TTL index)
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || 'unknown';
-    const viewerKey = req.headers.authorization
-      ? `user:${req.headers.authorization.slice(0, 20)}` // token prefix as identifier
+    // Use user MongoDB _id (not token prefix) to avoid leaking credentials
+    const viewerKey = req.user
+      ? `user:${req.user._id}`
       : `ip:${ip}`;
 
     try {
@@ -160,8 +161,24 @@ router.post(
 );
 
 // PUT /api/videos/:id — Update video (owner only)
-router.put('/:id', authenticate, requireTeacher, validateObjectId(), async (req, res) => {
+router.put(
+  '/:id',
+  authenticate,
+  requireTeacher,
+  validateObjectId(),
+  [
+    body('title').optional().trim().isLength({ max: 200 }).customSanitizer(stripHtml),
+    body('description').optional().isLength({ max: 1000 }).customSanitizer(stripHtml),
+    body('coverUrl').optional({ values: 'falsy' }).isURL({ protocols: ['https'], require_protocol: true }),
+    body('status').optional().isIn(['active', 'draft', 'deleted']),
+    body('tags').optional().isArray({ max: 10 }),
+    body('tags.*').optional().isString().isLength({ max: 30 }).customSanitizer(v => stripHtml(v).toLowerCase()),
+  ],
+  async (req, res) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
     const video = await Video.findById(req.params.id);
     if (!video) return res.status(404).json({ error: { message: 'Video not found' } });
     if (video.teacherId.toString() !== req.user._id.toString()) {
@@ -248,16 +265,26 @@ router.get('/:id/comments', validateObjectId(), async (req, res) => {
       .skip((page - 1) * limit)
       .limit(limit);
 
-    // Fetch replies for each comment
-    const commentsWithReplies = await Promise.all(
-      comments.map(async (comment) => {
-        const replies = await Comment.find({ parentCommentId: comment._id })
-          .populate('userId', 'displayName avatarUrl role')
-          .sort({ createdAt: 1 })
-          .limit(5);
-        return { ...comment.toObject(), replies };
-      })
-    );
+    // Batch-fetch all replies in one query instead of N+1
+    const commentIds = comments.map(c => c._id);
+    const allReplies = await Comment.find({ parentCommentId: { $in: commentIds } })
+      .populate('userId', 'displayName avatarUrl role')
+      .sort({ createdAt: 1 });
+
+    // Group replies by parent comment, limit to 5 per parent
+    const repliesByParent = {};
+    for (const reply of allReplies) {
+      const parentId = reply.parentCommentId.toString();
+      if (!repliesByParent[parentId]) repliesByParent[parentId] = [];
+      if (repliesByParent[parentId].length < 5) {
+        repliesByParent[parentId].push(reply);
+      }
+    }
+
+    const commentsWithReplies = comments.map(comment => ({
+      ...comment.toObject(),
+      replies: repliesByParent[comment._id.toString()] || [],
+    }));
 
     res.json({ comments: commentsWithReplies });
   } catch (error) {
@@ -270,7 +297,7 @@ router.post(
   '/:id/comments',
   authenticate,
   requireUser,
-  [body('text').trim().notEmpty().isLength({ max: 500 })],
+  [body('text').trim().notEmpty().isLength({ max: 500 }).customSanitizer(stripHtml)],
   async (req, res) => {
     try {
       const errors = validationResult(req);

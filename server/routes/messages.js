@@ -5,7 +5,7 @@ const Message = require('../models/Message');
 const User = require('../models/User');
 const { authenticate, requireUser } = require('../middleware/auth');
 const { body, validationResult } = require('express-validator');
-const { validateObjectId } = require('../middleware/validate');
+const { validateObjectId, stripHtml } = require('../middleware/validate');
 
 // GET /api/messages/conversations — List user's conversations
 router.get('/conversations', authenticate, requireUser, async (req, res) => {
@@ -100,7 +100,7 @@ router.post(
   authenticate,
   requireUser,
   validateObjectId(),
-  [body('text').trim().notEmpty().isLength({ max: 2000 })],
+  [body('text').trim().notEmpty().isLength({ max: 2000 }).customSanitizer(stripHtml)],
   async (req, res) => {
     try {
       const errors = validationResult(req);
@@ -158,7 +158,7 @@ router.get('/unread-count', authenticate, requireUser, async (req, res) => {
     res.status(500).json({ error: { message: 'Failed to fetch unread count' } });
   }
 });
-// DELETE /api/messages/conversations/:id — Delete a conversation
+// DELETE /api/messages/conversations/:id — Soft-delete conversation for current user
 router.delete('/conversations/:id', authenticate, requireUser, validateObjectId(), async (req, res) => {
   try {
     const conversation = await Conversation.findById(req.params.id);
@@ -168,10 +168,19 @@ router.delete('/conversations/:id', authenticate, requireUser, validateObjectId(
       return res.status(403).json({ error: { message: 'Not a participant' } });
     }
 
-    // Delete all messages in this conversation
-    await Message.deleteMany({ conversationId: req.params.id });
-    // Delete the conversation itself
-    await Conversation.findByIdAndDelete(req.params.id);
+    // Soft-delete: mark this user as having left the conversation
+    if (!conversation.leftAt) conversation.leftAt = new Map();
+    conversation.leftAt.set(req.user._id.toString(), new Date());
+    await conversation.save();
+
+    // If ALL participants have left, then hard-delete the conversation and messages
+    const allLeft = conversation.participants.every(
+      p => conversation.leftAt.get(p.toString())
+    );
+    if (allLeft) {
+      await Message.deleteMany({ conversationId: req.params.id });
+      await Conversation.findByIdAndDelete(req.params.id);
+    }
 
     res.json({ success: true });
   } catch (error) {
