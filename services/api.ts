@@ -1,7 +1,17 @@
 import axios from 'axios';
 import { auth } from './firebase';
+import { Platform } from 'react-native';
 
-const API_BASE_URL = (process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.77:3001/api').trim();
+// In web production (served from same origin), use relative URL.
+// In development or native, use the env variable.
+const isWebProduction =
+  Platform.OS === 'web' &&
+  typeof window !== 'undefined' &&
+  !window.location.hostname.includes('localhost');
+
+const API_BASE_URL = isWebProduction
+  ? '/api'
+  : (process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.77:3001/api').trim();
 
 // Create axios instance with default config
 const api = axios.create({
